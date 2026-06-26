@@ -1,0 +1,20 @@
+/* Client Frontend Layout CSS */
+
+.client-radial-bg {
+  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
+}
+
+.text-xxs {
+  font-size: 0.65rem;
+}
+
+/* Custom anim delay classes */
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}

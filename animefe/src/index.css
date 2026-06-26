@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './assets/styles/global.css';
+@import './assets/styles/admin.css';
+@import './assets/styles/frontend.css';

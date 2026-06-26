@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "Secret key used to sign JWT tokens."
+  },
+  {
+    "name": "jwt.expiration",
+    "type": "java.lang.Long",
+    "description": "JWT expiration time in milliseconds."
+  },
+  {
+    "name": "file.upload-dir",
+    "type": "java.lang.String",
+    "description": "Directory used to store uploaded files."
+  },
+  {
+    "name": "vnpay.tmn-code",
+    "type": "java.lang.String",
+    "description": "VNPAY terminal merchant code."
+  },
+  {
+    "name": "vnpay.secret",
+    "type": "java.lang.String",
+    "description": "Secret key used to sign VNPAY requests."
+  },
+  {
+    "name": "vnpay.url",
+    "type": "java.lang.String",
+    "description": "VNPAY payment gateway URL."
+  },
+  {
+    "name": "vnpay.return-url",
+    "type": "java.lang.String",
+    "description": "URL VNPAY redirects to after payment."
+  },
+  {
+    "name": "vnpay.hash-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'vnpay.hash-secret'"
+  },
+  {
+    "name": "vnpay.pay-url",
+    "type": "java.lang.String",
+    "description": "A description for 'vnpay.pay-url'"
+  },
+  {
+    "name": "jwt.refresh-expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.refresh-expiration'"
+  },
+  {
+    "name": "openai.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'openai.api.key'"
+  },
+  {
+    "name": "oauth2.redirect.frontend-url",
+    "type": "java.lang.String",
+    "description": "A description for 'oauth2.redirect.frontend-url'"
+  }
+]}

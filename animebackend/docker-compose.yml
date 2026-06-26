@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: anime-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: animebackend
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - anime-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anime-backend
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PORT=8083
+      - MYSQL_URL=jdbc:mysql://db:3306/animebackend?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=
+      - JWT_SECRET=QWERTYUIOPASDFGHJKLZXCVBNM123456789QWERTYUIOPASDFGHJKLZXCVBNM123456789QWERTYUIOPASDFGHJKLZXCVBNM123456789
+      - MAIL_USERNAME=your_email@gmail.com
+      - MAIL_PASSWORD=your_mail_password
+      - GOOGLE_CLIENT_ID=your_google_client_id
+      - GOOGLE_CLIENT_SECRET=your_google_client_secret
+      - FACEBOOK_APP_ID=your_facebook_app_id
+      - FACEBOOK_APP_SECRET=your_facebook_app_secret
+      - APP_URL=http://localhost:8083
+      - FRONTEND_URL=http://localhost:3000
+      - OPENAI_API_KEY=your_openai_api_key
+      - VNPAY_TMN_CODE=DEMO123
+      - VNPAY_HASH_SECRET=VNPAY_SECRET_KEY_DEMO
+      - VNPAY_RETURN_URL=http://localhost:8083/api/vnpay/payment-callback
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - anime-network
+
+volumes:
+  mysql_data:
+
+networks:
+  anime-network:
+    driver: bridge

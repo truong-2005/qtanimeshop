@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global CSS overrides */
+
+@layer base {
+  body {
+    @apply bg-[#0d0c1d] text-slate-100 antialiased selection:bg-purple-600/35 selection:text-white;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #080714;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f1a3a;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b2063;
+}
+
+/* Animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 35s linear infinite;
+}
+.animate-reverse-spin {
+  animation: spin-reverse 25s linear infinite;
+}
+
+/* Custom Glow Drop Shadows */
+.drop-shadow-purple-glow {
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.4));
+}
+.drop-shadow-pink-glow {
+  filter: drop-shadow(0 0 12px rgba(236, 72, 153, 0.4));
+}

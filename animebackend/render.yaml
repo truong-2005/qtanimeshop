@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: anime-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8083
+
+      # Database Configuration
+      - key: MYSQL_URL
+        sync: false
+      - key: MYSQL_USERNAME
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+
+      # App Security & JWT
+      - key: JWT_SECRET
+        generateValue: true
+      
+      # App URL (Tự động lấy URL sau khi Render khởi tạo service)
+      - key: APP_URL
+        fromService:
+          type: web
+          name: anime-backend
+          property: host
+
+      # Mail Service
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+
+      # Google Login
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+
+      # Facebook Login
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
+
+      # Frontend Configuration
+      - key: FRONTEND_URL
+        sync: false
+
+      # OpenAI Integration
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # VNPAY Integration
+      - key: VNPAY_TMN_CODE
+        sync: false
+      - key: VNPAY_HASH_SECRET
+        sync: false
+      - key: VNPAY_RETURN_URL
+        sync: false

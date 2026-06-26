@@ -1,0 +1,16 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "C:\\Program Files\\Java\\jdk-21",
+            "default": true
+        }
+    ],
+    "cSpell.words": [
+        "animebackend",
+        "SECRETKEYVNPAY"
+    ],
+    "liveServer.settings.port": 5501,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

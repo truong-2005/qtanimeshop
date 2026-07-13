@@ -13,6 +13,8 @@ public class UpdateProfileRequest {
 
     private String phone;
 
+    private String address;
+
     private Gender gender;
 
     // FILE IMAGE

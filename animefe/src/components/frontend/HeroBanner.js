@@ -35,7 +35,7 @@ const HeroBanner = () => {
 
   if (banners.length === 0) {
     return (
-      <section className="relative w-full h-[600px] md:h-[800px] -mt-[73px] bg-slate-50 overflow-hidden flex items-center">
+      <section className="relative w-full h-[400px] md:h-[500px] bg-slate-50 overflow-hidden flex items-center">
         {/* Background Gradient & Glow Effects */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-white to-purple-50 z-0"></div>
         
@@ -43,7 +43,7 @@ const HeroBanner = () => {
         <div className="absolute top-[20%] left-[5%] w-96 h-96 bg-purple-200/50 rounded-full blur-[120px] z-0"></div>
         <div className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-pink-200/50 rounded-full blur-[150px] z-0"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center pt-32 md:pt-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center pt-8 md:pt-12">
           <div className="flex flex-col gap-6 max-w-xl">
             <div className="flex flex-col gap-2">
               <h1 className="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 leading-tight tracking-wide drop-shadow-md">
@@ -68,7 +68,7 @@ const HeroBanner = () => {
   const currentBanner = banners[currentIndex];
 
   return (
-    <section className="relative w-full h-[500px] md:h-[650px] lg:h-[700px] bg-slate-100 overflow-hidden flex items-center mt-[-73px] group">
+    <section className="relative w-full h-[300px] md:h-[450px] lg:h-[500px] bg-slate-100 overflow-hidden flex items-center group">
       
       {/* Banner Slider */}
       {banners.map((banner, idx) => (
@@ -84,9 +84,6 @@ const HeroBanner = () => {
               className="w-full h-full object-cover object-center"
             />
           </Link>
-          
-          {/* Top Gradient for Header Legibility */}
-          <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
         </div>
       ))}
 

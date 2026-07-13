@@ -24,7 +24,7 @@ public class UploadServiceImpl implements UploadService {
 
         try {
 
-            File directory = new File(UPLOAD_DIR);
+            File directory = new File(UPLOAD_DIR).getAbsoluteFile();
 
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -33,9 +33,9 @@ public class UploadServiceImpl implements UploadService {
             String fileName =
                     UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-            String filePath = UPLOAD_DIR + fileName;
+            File destination = new File(directory, fileName);
 
-            file.transferTo(new File(filePath));
+            file.transferTo(destination);
 
             return fileName;
 

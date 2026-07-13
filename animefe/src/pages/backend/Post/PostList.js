@@ -8,7 +8,7 @@ import SearchBox from '../../../components/common/SearchBox';
 import SelectBox from '../../../components/common/SelectBox';
 import Pagination from '../../../components/common/Pagination';
 import Title from '../../../components/common/Title';
-import { formatDate } from '../../../utils';
+import { formatDate, getImageUrl } from '../../../utils';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -82,6 +82,7 @@ const PostList = () => {
 
   const headers = [
     { key: 'id', label: 'ID', sortable: false },
+    { key: 'thumbnail', label: 'Ảnh' },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'topic', label: 'Chủ đề' },
     { key: 'createdAt', label: 'Ngày tạo' },
@@ -92,11 +93,18 @@ const PostList = () => {
     <tr key={post.id} className="hover:bg-slate-900/40 border-b border-slate-900 transition-colors text-slate-300">
       <td className="px-6 py-4 font-semibold text-slate-500">#{post.id}</td>
       <td className="px-6 py-4">
+        <img
+          src={getImageUrl(post.thumbnail, 'https://placehold.co/80x48?text=No+Image')}
+          alt="Post thumbnail"
+          className="w-16 h-10 object-cover rounded border border-slate-800 bg-slate-950"
+        />
+      </td>
+      <td className="px-6 py-4">
         <div>
           <Link to={`/admin/posts/show/${post.id}`} className="font-bold text-slate-200 hover:text-indigo-400 transition-colors">
             {post.title}
           </Link>
-          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{post.content ? post.content.substring(0, 50) + '...' : 'Không có nội dung'}</p>
+          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{post.description || (post.content ? post.content.substring(0, 50) + '...' : 'Không có nội dung')}</p>
         </div>
       </td>
       <td className="px-6 py-4 font-semibold text-slate-400">

@@ -10,7 +10,7 @@ const ProductCard = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     if (addToCart) {
-      addToCart(product.id, 1);
+      addToCart(product, 1);
     }
   };
 
@@ -22,7 +22,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="group bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 transition-all duration-300 select-none">
-      <Link to={`/product/${product.slug}`} className="relative block aspect-[4/5] overflow-hidden bg-slate-50">
+      <Link to={`/product/${product.slug || product.id}`} className="relative block aspect-[4/5] overflow-hidden bg-slate-50">
         {/* Discount Badge */}
         {hasSale && (
           <span className="absolute top-2.5 left-2.5 z-10 px-2 py-1 text-[10px] font-black tracking-wider bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded shadow-md animate-pulse">
@@ -57,7 +57,7 @@ const ProductCard = ({ product }) => {
           </span>
           {/* Product Name */}
           <Link
-            to={`/product/${product.slug}`}
+            to={`/product/${product.slug || product.id}`}
             className="text-sm font-bold text-slate-800 line-clamp-2 hover:text-purple-600 transition-colors"
           >
             {product.name}

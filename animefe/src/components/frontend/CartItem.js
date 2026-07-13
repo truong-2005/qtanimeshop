@@ -28,7 +28,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
         </div>
         <div className="text-left flex-1">
           <Link
-            to={`/products/${item.productId}`}
+            to={`/product/${item.productId}`}
             className="font-bold text-slate-100 hover:text-purple-400 transition-colors line-clamp-1 text-sm md:text-base"
           >
             {item.productName}

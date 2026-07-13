@@ -8,7 +8,7 @@ import { formatCurrency, formatDate } from '../../../utils';
 
 const statusMap = {
   PENDING: { label: 'Chờ xác nhận', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  PROCESSING: { label: 'Đang xử lý', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  CONFIRMED: { label: 'Đã xác nhận', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
   SHIPPING: { label: 'Đang giao hàng', color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20' },
   DELIVERED: { label: 'Đã giao', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
   CANCELLED: { label: 'Đã hủy', color: 'text-rose-400 bg-rose-400/10 border-rose-400/20' }
@@ -20,7 +20,7 @@ const MyOrders = () => {
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState({ page: 0, totalPages: 0 });
 
-  const page = parseInt(searchParams.get('page') || '0', 10);
+  const page = Math.max(0, parseInt(searchParams.get('page') || '1', 10) - 1);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -39,7 +39,7 @@ const MyOrders = () => {
   }, [page]);
 
   const handlePageChange = (newPage) => {
-    setSearchParams({ page: newPage });
+    setSearchParams({ page: newPage.toString() });
   };
 
   return (
@@ -81,7 +81,7 @@ const MyOrders = () => {
                 </div>
                 <div className="text-right border-t md:border-t-0 md:border-l border-purple-900/20 pt-4 md:pt-0 md:pl-6">
                   <p className="text-slate-500 text-sm mb-1">Tổng tiền</p>
-                  <p className="text-2xl font-black text-purple-400">{formatCurrency(order.totalAmount)}</p>
+                  <p className="text-2xl font-black text-purple-400">{formatCurrency(order.totalPrice || 0)}</p>
                   <p className="text-xs text-slate-500 mt-2">Thanh toán: <span className="font-medium text-slate-300">{order.paymentMethod}</span></p>
                 </div>
               </div>
@@ -90,7 +90,7 @@ const MyOrders = () => {
 
           {pageData.totalPages > 1 && (
             <div className="mt-8 flex justify-center">
-              <Pagination currentPage={pageData.page} totalPages={pageData.totalPages} onPageChange={handlePageChange} />
+              <Pagination currentPage={pageData.page + 1} totalPages={pageData.totalPages} onPageChange={handlePageChange} />
             </div>
           )}
         </div>

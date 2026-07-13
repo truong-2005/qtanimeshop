@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import commentApi from '../../../api/commentApi';
 import useAuth from '../../../hooks/useAuth';
 import CommentForm from '../../../components/frontend/CommentForm';
-import { formatDate } from '../../../utils';
+import { formatDate, getImageUrl } from '../../../utils';
 
 const CommentList = ({ productId }) => {
   const [comments, setComments] = useState([]);
@@ -74,7 +74,7 @@ const CommentList = ({ productId }) => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-cyan-900 overflow-hidden">
                     {comment.user?.avatar ? (
-                      <img src={comment.user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                      <img src={getImageUrl(comment.user.avatar)} alt="avatar" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center font-bold text-cyan-400">
                         {comment.user?.username?.charAt(0).toUpperCase() || '?'}

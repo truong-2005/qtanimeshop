@@ -6,6 +6,7 @@ import Button from '../../../components/common/Button';
 import SearchBox from '../../../components/common/SearchBox';
 import Pagination from '../../../components/common/Pagination';
 import Title from '../../../components/common/Title';
+import { getImageUrl } from '../../../utils';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -94,7 +95,7 @@ const UserList = () => {
       </td>
       <td className="px-6 py-4">
         {user.avatar ? (
-          <img src={user.avatar.startsWith('http') ? user.avatar : `http://localhost:8083${user.avatar}`} alt={user.username} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
+          <img src={getImageUrl(user.avatar)} alt={user.username} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
         ) : (
           <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
             {user.fullName?.charAt(0).toUpperCase() || 'U'}

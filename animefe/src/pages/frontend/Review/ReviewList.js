@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import reviewApi from '../../../api/reviewApi';
 import useAuth from '../../../hooks/useAuth';
 import ReviewForm from '../../../components/frontend/ReviewForm';
-import { formatDate } from '../../../utils';
+import { formatDate, getImageUrl } from '../../../utils';
 
 const ReviewList = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
@@ -63,7 +63,7 @@ const ReviewList = ({ productId }) => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-indigo-900 overflow-hidden">
                     {review.user?.avatar ? (
-                      <img src={review.user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                      <img src={getImageUrl(review.user.avatar)} alt="avatar" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center font-bold text-indigo-400">
                         {review.user?.username?.charAt(0).toUpperCase() || '?'}

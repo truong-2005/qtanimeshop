@@ -63,6 +63,19 @@ const ProductFilter = ({
         </button>
       </h3>
 
+      {/* Tìm kiếm từ khóa */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-bold text-slate-300">Tìm kiếm</label>
+        <input
+          type="text"
+          name="keyword"
+          value={filters.keyword || ''}
+          onChange={handleSelectChange}
+          placeholder="Nhập tên sản phẩm..."
+          className="w-full bg-slate-950 border border-purple-950/40 text-slate-100 rounded-lg text-xs px-3 py-2 placeholder:text-slate-600 focus:outline-none focus:border-purple-500 transition-all font-sans font-medium"
+        />
+      </div>
+
       {/* Categories */}
       <SelectBox
         label="Danh mục"

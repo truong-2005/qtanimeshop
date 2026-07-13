@@ -1,62 +1,50 @@
 version: '3.8'
 
 services:
-  db:
+  # -------------------------------------------------------------
+  # 1. CONTAINER MYSQL
+  # -------------------------------------------------------------
+  mysql-db:
     image: mysql:8.0
-    container_name: anime-mysql
-    restart: always
+    container_name: anime-mysql-db
     environment:
-      MYSQL_DATABASE: animebackend
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # Cho phép password trống giống local của bạn
+      MYSQL_DATABASE: animebackend      # Tự động tạo DB tên là animebackend
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_anime_data:/var/lib/mysql
     networks:
       - anime-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: anime-backend
     restart: always
+
+  # -------------------------------------------------------------
+  # 2. CONTAINER ỨNG DỤNG JAVA (Được build từ Google Jib)
+  # -------------------------------------------------------------
+  anime-app:
+    image: my-animebackend-app:1.0.0 # Tên image bạn cấu hình trong plugin Jib
+    container_name: anime-spring-app
     ports:
       - "8083:8083"
     depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - PORT=8083
-      - MYSQL_URL=jdbc:mysql://db:3306/animebackend?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
-      - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=
-      - JWT_SECRET=QWERTYUIOPASDFGHJKLZXCVBNM123456789QWERTYUIOPASDFGHJKLZXCVBNM123456789QWERTYUIOPASDFGHJKLZXCVBNM123456789
-      - MAIL_USERNAME=your_email@gmail.com
-      - MAIL_PASSWORD=your_mail_password
-      - GOOGLE_CLIENT_ID=your_google_client_id
-      - GOOGLE_CLIENT_SECRET=your_google_client_secret
-      - FACEBOOK_APP_ID=your_facebook_app_id
-      - FACEBOOK_APP_SECRET=your_facebook_app_secret
-      - APP_URL=http://localhost:8083
-      - FRONTEND_URL=http://localhost:3000
-      - OPENAI_API_KEY=your_openai_api_key
-      - VNPAY_TMN_CODE=DEMO123
-      - VNPAY_HASH_SECRET=VNPAY_SECRET_KEY_DEMO
-      - VNPAY_RETURN_URL=http://localhost:8083/api/vnpay/payment-callback
-    volumes:
-      - ./uploads:/app/uploads
+      - mysql-db
     networks:
       - anime-network
+    restart: always
+    environment:
+      # Ghi đè URL kết nối: Đổi 'localhost' thành tên dịch vụ 'mysql-db' của Docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/animebackend?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      
+      # Các biến môi trường khác (Nếu bạn muốn thay đổi lúc chạy container)
+      - MAIL_USERNAME=your_email@gmail.com
+      - MAIL_PASSWORD=your_mail_password
+      - OPENAI_API_KEY=your_openai_key_here
+      # - JWT_SECRET=ChuoiSecretMoiNeuMuonThayDoi
 
 volumes:
-  mysql_data:
+  mysql_anime_data: # Giúp giữ lại dữ liệu MySQL khi bạn stop/restart container
 
 networks:
   anime-network:

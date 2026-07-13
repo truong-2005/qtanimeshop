@@ -4,11 +4,12 @@ import orderApi from '../../../api/orderApi';
 import Title from '../../../components/common/Title';
 import Button from '../../../components/common/Button';
 import Loading from '../../../components/common/Loading';
+import vnPayApi from '../../../api/vnPayApi';
 import { formatCurrency, formatDate } from '../../../utils';
 
 const statusMap = {
   PENDING: { label: 'Chờ xác nhận', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20', step: 1 },
-  PROCESSING: { label: 'Đang xử lý', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', step: 2 },
+  CONFIRMED: { label: 'Đã xác nhận', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', step: 2 },
   SHIPPING: { label: 'Đang giao hàng', color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20', step: 3 },
   DELIVERED: { label: 'Đã giao', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', step: 4 },
   CANCELLED: { label: 'Đã hủy', color: 'text-rose-400 bg-rose-400/10 border-rose-400/20', step: -1 }
@@ -44,6 +45,28 @@ const OrderDetail = () => {
         console.error(err);
         alert(err.response?.data?.message || 'Có lỗi xảy ra khi hủy đơn hàng');
       }
+    }
+  };
+
+  const handleRetryPayment = async () => {
+    try {
+      setLoading(true);
+      const paymentRes = await vnPayApi.createPayment({
+        amount: order.totalPrice,
+        orderId: order.orderId || order.id
+      });
+      
+      const paymentUrl = paymentRes.paymentUrl || paymentRes.message;
+      if (paymentUrl && paymentUrl.startsWith('http')) {
+        window.location.href = paymentUrl;
+      } else {
+        alert('Lỗi tạo thanh toán VNPAY');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Có lỗi xảy ra khi tạo thanh toán mới');
+      setLoading(false);
     }
   };
 
@@ -125,11 +148,26 @@ const OrderDetail = () => {
             <h3 className="text-base font-bold text-slate-100 uppercase tracking-wider mb-4">Phương thức thanh toán</h3>
             <div className="space-y-3 text-sm text-slate-300 bg-slate-900/50 p-5 rounded-xl border border-purple-900/10 h-[calc(100%-2rem)]">
               <p className="font-medium text-indigo-300 text-lg mb-2">{order.paymentMethod}</p>
-              <p className="text-slate-500">
+              <div className="text-slate-500">
                 {order.paymentMethod === 'COD' 
-                  ? 'Thanh toán bằng tiền mặt khi nhận hàng.' 
-                  : 'Đã thanh toán qua cổng VNPAY.'}
-              </p>
+                  ? <p>Thanh toán bằng tiền mặt khi nhận hàng.</p>
+                  : (
+                    <div>
+                      <p>Thanh toán qua cổng VNPAY.</p>
+                      <p className="mt-1">
+                        Trạng thái:{' '}
+                        <span className={order.paymentStatus === 'PAID' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                          {order.paymentStatus === 'PAID' ? 'Đã nhận tiền' : 'Chưa thanh toán'}
+                        </span>
+                      </p>
+                      {order.paymentStatus !== 'PAID' && order.orderStatus === 'PENDING' && (
+                        <Button variant="primary" className="mt-4 w-full justify-center" onClick={handleRetryPayment}>
+                          Thanh toán lại
+                        </Button>
+                      )}
+                    </div>
+                  )}
+              </div>
             </div>
           </div>
         </div>
@@ -166,7 +204,7 @@ const OrderDetail = () => {
           <div className="w-full md:w-1/2 space-y-3">
              <div className="flex justify-between text-sm text-slate-400">
                 <span>Tạm tính</span>
-                <span>{formatCurrency(order.totalAmount)}</span>
+                <span>{formatCurrency(order.totalPrice || 0)}</span>
              </div>
              <div className="flex justify-between text-sm text-slate-400">
                 <span>Phí vận chuyển</span>
@@ -174,7 +212,7 @@ const OrderDetail = () => {
              </div>
              <div className="flex justify-between font-black text-2xl text-emerald-400 mt-4 pt-4 border-t border-purple-900/20">
                 <span>Tổng cộng</span>
-                <span>{formatCurrency(order.totalAmount)}</span>
+                <span>{formatCurrency(order.totalPrice || 0)}</span>
              </div>
           </div>
         </div>

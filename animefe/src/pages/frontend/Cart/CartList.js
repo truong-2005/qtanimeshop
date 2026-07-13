@@ -48,7 +48,7 @@ const CartList = () => {
     }
   };
 
-  if (loading) {
+  if (loading && (!items || items.length === 0)) {
     return <div className="min-h-screen pt-20"><Loading text="Đang tải giỏ hàng..." /></div>;
   }
 

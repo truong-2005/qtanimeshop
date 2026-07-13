@@ -7,6 +7,8 @@ const UploadFile = () => {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadResult, setUploadResult] = useState(null);
+  const [uploadedPath, setUploadedPath] = useState('');
+  const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -14,6 +16,8 @@ const UploadFile = () => {
     const selectedFile = e.target.files[0];
     setError('');
     setUploadResult(null);
+    setUploadedPath('');
+    setCopied(false);
 
     if (!selectedFile) {
       setFile(null);
@@ -40,16 +44,31 @@ const UploadFile = () => {
     setIsLoading(true);
     setError('');
     setUploadResult(null);
+    setUploadedPath('');
+    setCopied(false);
 
     try {
       const res = await uploadService.uploadFile(file);
-      setUploadResult(res?.message || 'Tải file thành công!');
+      if (res && res.message) {
+        const path = `/uploads/${res.message}`;
+        setUploadedPath(path);
+        setUploadResult('Tải file thành công!');
+      } else {
+        setUploadResult('Tải file thành công!');
+      }
     } catch (err) {
       setError('Lỗi tải file lên máy chủ.');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCopy = () => {
+    if (!uploadedPath) return;
+    navigator.clipboard.writeText(uploadedPath);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -81,8 +100,20 @@ const UploadFile = () => {
         )}
 
         {uploadResult && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-lg">
-            {uploadResult}
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-lg flex flex-col gap-2">
+            <div>{uploadResult}</div>
+            {uploadedPath && (
+              <div className="mt-1 flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <code className="text-xs text-indigo-400 flex-1 font-mono break-all">{uploadedPath}</code>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-500 active:scale-95 transition-all shrink-0"
+                >
+                  {copied ? 'Đã copy!' : 'Sao chép'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

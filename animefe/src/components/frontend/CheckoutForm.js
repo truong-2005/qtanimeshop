@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../common/Input';
 import Button from '../common/Button';
 
-const CheckoutForm = ({ onSubmit, isLoading = false }) => {
+const CheckoutForm = ({ onSubmit, isLoading = false, initialData = null }) => {
   const [formData, setFormData] = useState({
     receiverName: '',
     phone: '',
@@ -10,6 +10,17 @@ const CheckoutForm = ({ onSubmit, isLoading = false }) => {
     note: '',
     paymentMethod: 'COD',
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => ({
+        ...prev,
+        receiverName: initialData.receiverName || prev.receiverName,
+        phone: initialData.phone || prev.phone,
+        address: initialData.address || prev.address,
+      }));
+    }
+  }, [initialData]);
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {

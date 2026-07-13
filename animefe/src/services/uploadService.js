@@ -20,7 +20,7 @@ const uploadService = {
     formData.append('file', file);
     try {
       const res = await uploadApi.uploadFile(formData);
-      return res.data;
+      return res;
     } catch (error) {
       console.error('Lỗi khi tải ảnh lên:', error);
       throw error;

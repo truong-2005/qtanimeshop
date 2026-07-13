@@ -5,6 +5,7 @@ import java.util.List;
 import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
+import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
 
 public interface OrderService {
 
@@ -29,6 +30,8 @@ public interface OrderService {
     OrderResponse getById(Long id);
 
     OrderResponse updateStatus(Long id, OrderStatusRequest request);
+
+    OrderResponse updatePaymentStatus(Long id, PaymentStatusRequest request);
 
     void delete(Long id);
 }

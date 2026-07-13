@@ -198,6 +198,7 @@ com\qtanime\animebackend\service\impl\NotificationServiceImpl.class
 com\qtanime\animebackend\dto\comment\CommentRequest.class
 com\qtanime\animebackend\entity\Order$OrderBuilder.class
 com\qtanime\animebackend\entity\Post.class
+com\qtanime\animebackend\dto\order\PaymentStatusRequest.class
 com\qtanime\animebackend\repository\SettingRepository.class
 com\qtanime\animebackend\service\impl\ProductServiceImpl.class
 com\qtanime\animebackend\service\impl\VnPayServiceImpl.class

@@ -5,7 +5,7 @@ import topicApi from '../../../api/topicApi';
 import Title from '../../../components/common/Title';
 import Pagination from '../../../components/common/Pagination';
 import Loading from '../../../components/common/Loading';
-import { formatDate } from '../../../utils';
+import { formatDate, getImageUrl } from '../../../utils';
 
 const PostList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,7 +14,7 @@ const PostList = () => {
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState({ page: 0, totalPages: 0 });
 
-  const page = parseInt(searchParams.get('page') || '0', 10);
+  const page = Math.max(0, parseInt(searchParams.get('page') || '1', 10) - 1);
   const topicId = searchParams.get('topicId') || '';
 
   useEffect(() => {
@@ -29,8 +29,26 @@ const PostList = () => {
         if (topicId) params.topicId = topicId;
         
         const res = await postApi.getAll(params);
-        setPosts(res.content || []);
-        setPageData({ page: res.number, totalPages: res.totalPages });
+        if (Array.isArray(res)) {
+          // If it's a flat list, filter and paginate on client-side
+          const filtered = topicId 
+            ? res.filter(p => p.topic?.id === Number(topicId))
+            : res;
+          
+          const size = 9;
+          const start = page * size;
+          const paginated = filtered.slice(start, start + size);
+          
+          setPosts(paginated);
+          setPageData({ 
+            page, 
+            totalPages: Math.ceil(filtered.length / size) 
+          });
+        } else {
+          // If it's a standard Page response
+          setPosts(res.content || []);
+          setPageData({ page: res.number, totalPages: res.totalPages });
+        }
       } catch (err) {
         console.error('Lỗi tải bài viết:', err);
       } finally {
@@ -48,7 +66,7 @@ const PostList = () => {
 
   const handleTopicClick = (id) => {
     if (id) {
-      setSearchParams({ topicId: id, page: '0' });
+      setSearchParams({ topicId: id, page: '1' });
     } else {
       setSearchParams({});
     }
@@ -96,7 +114,7 @@ const PostList = () => {
                     </span>
                   )}
                   {post.thumbnail ? (
-                     <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                     <img src={getImageUrl(post.thumbnail)} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                      <div className="w-full h-full flex items-center justify-center bg-slate-800">
                         <span className="text-slate-600">No Image</span>
@@ -128,7 +146,7 @@ const PostList = () => {
 
           {pageData.totalPages > 1 && (
             <div className="mt-12 flex justify-center">
-              <Pagination currentPage={pageData.page} totalPages={pageData.totalPages} onPageChange={handlePageChange} />
+              <Pagination currentPage={pageData.page + 1} totalPages={pageData.totalPages} onPageChange={handlePageChange} />
             </div>
           )}
         </>

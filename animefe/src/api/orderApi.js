@@ -16,6 +16,9 @@ const orderApi = {
   updateStatus: (id, orderStatusRequest) => {
     return axiosClient.put(`/api/orders/${id}/status`, orderStatusRequest);
   },
+  updatePaymentStatus: (id, paymentStatusRequest) => {
+    return axiosClient.put(`/api/orders/${id}/payment-status`, paymentStatusRequest);
+  },
   cancelOrder: (id) => {
     return axiosClient.put(`/api/orders/cancel/${id}`);
   },

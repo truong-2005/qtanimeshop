@@ -50,7 +50,7 @@ const ChangePassword = () => {
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-slate-900 p-8 rounded-2xl shadow-2xl border border-slate-800">
+      <div className="max-w-md w-full bg-[#110e2d]/60 p-8 rounded-2xl shadow-2xl border border-purple-900/30">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/profile" className="text-slate-400 hover:text-white transition-colors">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

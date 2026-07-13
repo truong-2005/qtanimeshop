@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
+import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
 import com.qtanime.animebackend.entity.Cart;
 import com.qtanime.animebackend.entity.CartItem;
 import com.qtanime.animebackend.entity.Order;
@@ -169,6 +170,23 @@ public class OrderServiceImpl implements OrderService {
                         new ResourceNotFoundException("Đơn hàng không tồn tại"));
 
         order.setOrderStatus(request.getOrderStatus());
+
+        orderRepository.save(order);
+
+        return mapToResponse(order);
+    }
+
+    @Override
+    public OrderResponse updatePaymentStatus(
+            Long id,
+            PaymentStatusRequest request
+    ) {
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Đơn hàng không tồn tại"));
+
+        order.setPaymentStatus(request.getPaymentStatus());
 
         orderRepository.save(order);
 

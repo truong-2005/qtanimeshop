@@ -3,6 +3,7 @@ package com.qtanime.animebackend.controller;
 import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
+import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
 import com.qtanime.animebackend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +77,15 @@ public class OrderController {
     ) {
 
         return orderService.updateStatus(id, request);
+    }
+
+    @PutMapping("/{id}/payment-status")
+    public OrderResponse updatePaymentStatus(
+            @PathVariable Long id,
+            @RequestBody PaymentStatusRequest request
+    ) {
+
+        return orderService.updatePaymentStatus(id, request);
     }
 
     @DeleteMapping("/{id}")

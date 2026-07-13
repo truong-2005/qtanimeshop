@@ -21,7 +21,7 @@ public class NotificationServiceImpl
     @Override
     public List<Notification> getAll() {
 
-        return notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        return notificationRepository.findAll(Sort.by(Sort.Direction.DESC, Notification::getId));
     }
 
     @Override

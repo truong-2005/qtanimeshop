@@ -197,6 +197,10 @@ public class UserServiceImpl implements UserService {
                 request.getPhone()
         );
 
+        user.setAddress(
+                request.getAddress()
+        );
+
         user.setGender(
                 request.getGender()
         );
@@ -347,6 +351,7 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
+                .address(user.getAddress())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .avatar(user.getAvatar())

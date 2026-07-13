@@ -7,6 +7,7 @@ import Input from '../../../components/common/Input';
 import SelectBox from '../../../components/common/SelectBox';
 import Button from '../../../components/common/Button';
 import Loading from '../../../components/common/Loading';
+import { getImageUrl } from '../../../utils';
 
 const Profile = () => {
   const { updateProfileState } = useAuth();
@@ -70,7 +71,7 @@ const Profile = () => {
       data.append('address', formData.address);
       data.append('gender', formData.gender);
       if (formData.avatarFile) {
-        data.append('file', formData.avatarFile);
+        data.append('avatar', formData.avatarFile);
       }
 
       const res = await userApi.updateProfile(data);
@@ -103,7 +104,7 @@ const Profile = () => {
           <div className="flex flex-col items-center gap-6 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-purple-900/20 pb-8 md:pb-0 md:pr-8">
             <div className="w-40 h-40 rounded-full border-4 border-slate-800 overflow-hidden bg-slate-900 shadow-xl shadow-purple-900/20 relative group">
               <img
-                src={avatarPreview || 'https://placehold.co/150'}
+                src={getImageUrl(avatarPreview, 'https://placehold.co/150')}
                 alt="Avatar"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />

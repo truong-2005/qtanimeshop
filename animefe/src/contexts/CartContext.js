@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import cartApi from '../api/cartApi';
+import productApi from '../api/productApi';
 import tokenService from '../services/tokenService';
 
 export const CartContext = createContext();
@@ -45,19 +46,50 @@ export const CartProvider = ({ children }) => {
       window.removeEventListener('auth-logout', handleLoginChange);
     };
   }, []);
-
   const addToCart = async (product, quantity = 1) => {
     setLoading(true);
     try {
+      const productId = typeof product === 'object' ? product.id : product;
+      const existingItem = cartItems.find((item) => item.productId === productId);
+      const currentCartQty = existingItem ? existingItem.quantity : 0;
+
+      let stock = 999;
+      if (typeof product === 'object' && product.quantity !== undefined && product.quantity !== null) {
+        stock = product.quantity;
+      } else {
+        try {
+          const prodDetail = await productApi.getById(productId);
+          stock = prodDetail?.quantity ?? 999;
+        } catch (e) {
+          console.error("Không thể lấy thông tin số lượng sản phẩm:", e);
+        }
+      }
+
+      if (currentCartQty + quantity > stock) {
+        alert(`Không thể thêm vào giỏ hàng. Trong kho chỉ còn ${stock} sản phẩm (bạn đã có ${currentCartQty} sản phẩm trong giỏ).`);
+        return false;
+      }
+
       if (isLoggedIn()) {
-        // product is usually passed as object or id
-        const productId = typeof product === 'object' ? product.id : product;
         await cartApi.addToCart({ productId, quantity });
         await loadCart();
       } else {
         // Guest cart local logic
-        const existingItemIdx = cartItems.findIndex((item) => item.productId === product.id);
+        const existingItemIdx = cartItems.findIndex((item) => item.productId === productId);
         let updatedItems = [...cartItems];
+
+        let guestProduct = typeof product === 'object' ? product : null;
+        if (!guestProduct) {
+          try {
+            guestProduct = await productApi.getById(productId);
+          } catch (e) {
+            console.error("Failed to fetch product for guest cart:", e);
+          }
+        }
+
+        const prodName = guestProduct?.name || 'Sản phẩm';
+        const prodThumb = guestProduct?.thumbnail || '';
+        const prodPrice = guestProduct?.price || 0;
 
         if (existingItemIdx > -1) {
           updatedItems[existingItemIdx].quantity += quantity;
@@ -65,19 +97,21 @@ export const CartProvider = ({ children }) => {
         } else {
           updatedItems.push({
             cartItemId: Date.now(), // Mock ID
-            productId: product.id,
-            productName: product.name,
-            thumbnail: product.thumbnail,
-            price: product.price,
+            productId: productId,
+            productName: prodName,
+            thumbnail: prodThumb,
+            price: prodPrice,
             quantity: quantity,
-            totalPrice: product.price * quantity,
+            totalPrice: prodPrice * quantity,
           });
         }
         setCartItems(updatedItems);
         localStorage.setItem(GUEST_CART_KEY, JSON.stringify(updatedItems));
       }
+      return true;
     } catch (err) {
       console.error('Failed to add to cart:', err);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -87,6 +121,22 @@ export const CartProvider = ({ children }) => {
     if (quantity < 1) return;
     setLoading(true);
     try {
+      const item = cartItems.find((i) => i.cartItemId === cartItemId);
+      if (!item) return;
+
+      let stock = 999;
+      try {
+        const prodDetail = await productApi.getById(item.productId);
+        stock = prodDetail?.quantity ?? 999;
+      } catch (e) {
+        console.error("Không thể lấy thông tin số lượng sản phẩm để cập nhật:", e);
+      }
+
+      if (quantity > stock) {
+        alert(`Không thể cập nhật số lượng. Trong kho chỉ còn ${stock} sản phẩm.`);
+        return;
+      }
+
       if (isLoggedIn()) {
         await cartApi.updateQuantity(cartItemId, quantity);
         await loadCart();

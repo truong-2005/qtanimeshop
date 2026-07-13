@@ -45,6 +45,8 @@ public class PostServiceImpl implements PostService {
         oldPost.setTitle(post.getTitle());
         oldPost.setContent(post.getContent());
         oldPost.setTopic(post.getTopic());
+        oldPost.setThumbnail(post.getThumbnail());
+        oldPost.setDescription(post.getDescription());
 
         return postRepository.save(oldPost);
     }

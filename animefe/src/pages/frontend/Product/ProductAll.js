@@ -31,7 +31,7 @@ const ProductAll = () => {
     maxPrice: searchParams.get('maxPrice') || '',
     sortBy: searchParams.get('sortBy') || '',
     sortDirection: searchParams.get('sortDirection') || '',
-    page: parseInt(searchParams.get('page') || '0', 10),
+    page: Math.max(0, parseInt(searchParams.get('page') || '1', 10) - 1),
   };
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const ProductAll = () => {
           {!isLoading && pageData.totalPages > 1 && (
             <div className="flex justify-center mt-4">
               <Pagination
-                currentPage={pageData.page}
+                currentPage={pageData.page + 1}
                 totalPages={pageData.totalPages}
                 onPageChange={handlePageChange}
               />

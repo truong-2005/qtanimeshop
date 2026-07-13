@@ -3,7 +3,6 @@ package com.qtanime.animebackend.service.impl;
 import org.springframework.stereotype.Service;
 
 import com.qtanime.animebackend.entity.Setting;
-import com.qtanime.animebackend.exception.ResourceNotFoundException;
 import com.qtanime.animebackend.repository.SettingRepository;
 import com.qtanime.animebackend.service.SettingService;
 
@@ -21,10 +20,16 @@ public class SettingServiceImpl implements SettingService {
         return settingRepository.findAll()
                 .stream()
                 .findFirst()
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Setting không tồn tại"
-                        ));
+                .orElseGet(() -> {
+                    Setting defaultSetting = Setting.builder()
+                            .siteName("Anime Store")
+                            .email("support@animestore.vn")
+                            .hotline("091 234 5678")
+                            .address("Hà Nội, Việt Nam")
+                            .slogan("Mô hình chính hãng Nhật Bản")
+                            .build();
+                    return settingRepository.save(defaultSetting);
+                });
     }
 
     @Override

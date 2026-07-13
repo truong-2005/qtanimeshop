@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import productApi from '../../../api/productApi';
 import cartApi from '../../../api/cartApi';
 import useAuth from '../../../hooks/useAuth';
+import useCart from '../../../hooks/useCart';
 import Title from '../../../components/common/Title';
 import Button from '../../../components/common/Button';
 import Loading from '../../../components/common/Loading';
@@ -13,6 +14,7 @@ import { formatCurrency, getImageUrl } from '../../../utils';
 const ProductDetail = () => {
   const { slug } = useParams();
   const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart() || {};
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,14 +64,15 @@ const ProductDetail = () => {
 
     setAddingToCart(true);
     try {
-      await cartApi.addToCart({
-        productId: product.id,
-        quantity: quantity
-      });
-      alert('Thêm vào giỏ hàng thành công!');
+      if (addToCart) {
+        const success = await addToCart(product, quantity);
+        if (success) {
+          alert('Thêm vào giỏ hàng thành công!');
+        }
+      }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+      alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
     } finally {
       setAddingToCart(false);
     }

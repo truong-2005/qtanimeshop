@@ -6,6 +6,7 @@ const OrderTable = ({
   orders = [],
   onViewDetails,
   onUpdateStatus,
+  onUpdatePaymentStatus,
   isLoading = false,
 }) => {
   const getStatusBadge = (status) => {
@@ -30,7 +31,7 @@ const OrderTable = ({
     );
   };
 
-  const getPaymentBadge = (status) => {
+  const getPaymentBadge = (status, orderId) => {
     const badges = {
       UNPAID: 'bg-slate-500/10 text-slate-400 ring-1 ring-slate-500/20',
       PAID: 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20',
@@ -39,14 +40,30 @@ const OrderTable = ({
     };
     const labels = {
       UNPAID: 'Chưa thanh toán',
-      PAID: 'Đã thanh toán',
+      PAID: 'Đã nhận tiền',
       FAILED: 'Thất bại',
-      REFUNDED: 'Hoàn tiền',
+      REFUNDED: 'Đã hoàn tiền',
     };
+    
+    if (!onUpdatePaymentStatus) {
+      return (
+        <span className={`px-2 py-1 text-xs font-bold rounded-full ${badges[status] || badges.UNPAID}`}>
+          {labels[status] || status}
+        </span>
+      );
+    }
+
     return (
-      <span className={`px-2 py-1 text-xs font-bold rounded-full ${badges[status] || badges.UNPAID}`}>
-        {labels[status] || status}
-      </span>
+      <select
+        value={status}
+        onChange={(e) => onUpdatePaymentStatus(orderId, e.target.value)}
+        className={`px-2 py-1 text-xs font-bold rounded-full cursor-pointer appearance-none outline-none text-center bg-transparent ${badges[status] || badges.UNPAID}`}
+      >
+        <option value="UNPAID" className="bg-slate-800 text-slate-300">Chưa thanh toán</option>
+        <option value="PAID" className="bg-slate-800 text-emerald-400">Đã nhận tiền</option>
+        <option value="REFUNDED" className="bg-slate-800 text-indigo-400">Đã hoàn tiền</option>
+        <option value="FAILED" className="bg-slate-800 text-rose-400">Thất bại</option>
+      </select>
     );
   };
 
@@ -77,7 +94,7 @@ const OrderTable = ({
         {order.totalPrice ? formatCurrency(order.totalPrice) : '0 đ'}
       </td>
       <td className="px-6 py-4 text-xs font-semibold text-slate-400">{order.paymentMethod}</td>
-      <td className="px-6 py-4">{getPaymentBadge(order.paymentStatus)}</td>
+      <td className="px-6 py-4">{getPaymentBadge(order.paymentStatus, order.orderId)}</td>
       <td className="px-6 py-4">{getStatusBadge(order.orderStatus)}</td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">

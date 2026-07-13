@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import userApi from '../../../api/userApi';
 import Button from '../../../components/common/Button';
 import Loading from '../../../components/common/Loading';
+import { getImageUrl } from '../../../utils';
 
 const UserShow = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const UserShow = () => {
         {user.avatar && (
           <div className="mb-2">
             <img 
-              src={user.avatar.startsWith('http') ? user.avatar : `http://localhost:8083${user.avatar}`} 
+              src={getImageUrl(user.avatar)} 
               alt={user.username} 
               className="w-20 h-20 rounded-full object-cover border-2 border-slate-700"
             />

@@ -139,6 +139,17 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.4.4</version>
+				<configuration>
+					<to>
+						<image>my-animebackend-app:1.0.0</image>
+					</to>
+				</configuration>
+				
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>
@@ -176,5 +187,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

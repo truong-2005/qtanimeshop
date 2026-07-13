@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useCart from '../../../hooks/useCart';
 import orderApi from '../../../api/orderApi';
 import vnPayApi from '../../../api/vnPayApi';
+import userApi from '../../../api/userApi';
 import CheckoutForm from '../../../components/frontend/CheckoutForm';
 import Title from '../../../components/common/Title';
 import Loading from '../../../components/common/Loading';
@@ -11,6 +12,7 @@ import { formatCurrency, getImageUrl } from '../../../utils';
 const Checkout = () => {
   const { cartItems: items, loading: cartLoading, cartTotal } = useCart() || {};
   const [submitting, setSubmitting] = useState(false);
+  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +22,17 @@ const Checkout = () => {
     }
   }, [items, cartLoading, navigate]);
 
-
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await userApi.getMyProfile();
+        setProfile(res);
+      } catch (err) {
+        console.error('Lỗi lấy profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleCheckout = async (formData) => {
     setSubmitting(true);
@@ -54,7 +66,7 @@ const Checkout = () => {
     }
   };
 
-  if (cartLoading || !items) {
+  if (cartLoading && (!items || items.length === 0)) {
     return <div className="min-h-screen pt-20"><Loading text="Đang chuẩn bị thanh toán..." /></div>;
   }
 
@@ -64,7 +76,15 @@ const Checkout = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-8">
         <div className="lg:col-span-2">
-          <CheckoutForm onSubmit={handleCheckout} isLoading={submitting} />
+          <CheckoutForm 
+            onSubmit={handleCheckout} 
+            isLoading={submitting} 
+            initialData={profile ? {
+              receiverName: profile.fullName || '',
+              phone: profile.phone || '',
+              address: profile.address || '',
+            } : null}
+          />
         </div>
         
         <div className="lg:col-span-1">

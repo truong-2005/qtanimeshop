@@ -40,6 +40,8 @@ public class User extends BaseEntity {
 
     private String fullName;
 
+    private String address;
+
     // FILE IMAGE
     private String avatar;
 

@@ -51,6 +51,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\dto\common\PaginationResp
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderStatusRequest.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\PaymentStatusRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\payment\PaymentRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\payment\PaymentResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\payment\VnPayRequest.java

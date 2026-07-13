@@ -5,8 +5,10 @@ import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
 import SelectBox from '../../../components/common/SelectBox';
 import Loading from '../../../components/common/Loading';
+import useAuth from '../../../hooks/useAuth';
 
 const UserProfile = () => {
+  const { updateAdminProfileState } = useAuth();
   const [profile, setProfile] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -69,7 +71,8 @@ const UserProfile = () => {
     }
 
     try {
-      await userApi.updateProfile(data);
+      const res = await userApi.updateProfile(data);
+      updateAdminProfileState(res);
       alert('Cập nhật trang cá nhân thành công!');
     } catch (err) {
       console.error(err);

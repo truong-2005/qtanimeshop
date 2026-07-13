@@ -5,10 +5,13 @@ import Title from '../../../components/common/Title';
 import Button from '../../../components/common/Button';
 import Loading from '../../../components/common/Loading';
 
+import useCart from '../../../hooks/useCart';
+
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState(null); // { success: true/false, message: '' }
+  const { refreshCart } = useCart() || {};
 
   useEffect(() => {
     const processPayment = async () => {
@@ -20,6 +23,7 @@ const PaymentResult = () => {
         // COD
         if (mockStatus === '00' || mockStatus === 'success') {
           setResult({ success: true, message: 'Đặt hàng thành công! Đơn hàng của bạn sẽ được thanh toán khi nhận hàng.', orderId });
+          if (refreshCart) refreshCart();
         } else {
           setResult({ success: false, message: 'Đặt hàng thất bại.' });
         }
@@ -35,6 +39,7 @@ const PaymentResult = () => {
           
           if (vnp_ResponseCode === '00') {
              setResult({ success: true, message: res?.message || 'Thanh toán qua VNPAY thành công!', orderId: searchParams.get('vnp_TxnRef') });
+             if (refreshCart) refreshCart();
           } else {
              setResult({ success: false, message: 'Thanh toán VNPAY thất bại hoặc bị hủy.' });
           }

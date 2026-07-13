@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Input from '../common/Input';
 import SelectBox from '../common/SelectBox';
 import Button from '../common/Button';
+import { getImageUrl } from '../../utils';
+import uploadService from '../../services/uploadService';
 
 const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
   const [formData, setFormData] = useState({
@@ -14,7 +16,11 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
     gender: 'OTHER',
     roleName: 'CUSTOMER',
     enabled: true,
+    avatar: '',
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -29,7 +35,13 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
         gender: initialData.gender || 'OTHER',
         roleName: initialData.role?.name || initialData.role || 'CUSTOMER',
         enabled: initialData.enabled !== undefined ? initialData.enabled : true,
+        avatar: initialData.avatar || '',
       });
+      if (initialData.avatar) {
+        setAvatarPreview(initialData.avatar);
+      } else {
+        setAvatarPreview('');
+      }
     }
   }, [initialData]);
 
@@ -41,6 +53,19 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
     }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleAvatarFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validation = uploadService.validateImage(file);
+      if (!validation.valid) {
+        alert(validation.message);
+        return;
+      }
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     }
   };
 
@@ -70,28 +95,46 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    // Map roleName back to matching API schema formatting
-    const submissionData = {
-      username: formData.username,
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      birthday: formData.birthday || null,
-      gender: formData.gender,
-      enabled: formData.enabled,
-      role: { name: formData.roleName },
-    };
+    setIsUploading(true);
+    let finalAvatar = formData.avatar;
 
-    if (formData.password) {
-      submissionData.password = formData.password;
-    }
+    try {
+      if (avatarFile) {
+        const uploadRes = await uploadService.uploadFile(avatarFile);
+        if (uploadRes && uploadRes.message) {
+          finalAvatar = `/uploads/${uploadRes.message}`;
+        }
+      }
 
-    if (onSubmit) {
-      onSubmit(submissionData);
+      // Map roleName back to matching API schema formatting
+      const submissionData = {
+        username: formData.username,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        birthday: formData.birthday || null,
+        gender: formData.gender,
+        enabled: formData.enabled,
+        role: { name: formData.roleName },
+        avatar: finalAvatar,
+      };
+
+      if (formData.password) {
+        submissionData.password = formData.password;
+      }
+
+      if (onSubmit) {
+        await onSubmit(submissionData);
+      }
+    } catch (err) {
+      console.error('Lỗi khi submit form:', err);
+      alert('Tải ảnh đại diện thất bại, vui lòng thử lại.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -108,6 +151,24 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col gap-6">
+      {/* Avatar Section */}
+      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-800">
+        <div className="relative w-20 h-20 rounded-full border-2 border-indigo-500 overflow-hidden bg-slate-950 flex items-center justify-center font-bold text-white text-3xl select-none">
+          {avatarPreview ? (
+            <img src={getImageUrl(avatarPreview)} alt="Avatar Preview" className="w-full h-full object-cover" />
+          ) : (
+            formData.fullName?.charAt(0).toUpperCase() || 'U'
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow cursor-pointer transition-colors text-center w-fit">
+            Chọn ảnh đại diện
+            <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" />
+          </label>
+          <p className="text-[10px] text-slate-500">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 5MB.</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Username */}
         <Input
@@ -213,7 +274,7 @@ const UserForm = ({ initialData = null, onSubmit, isLoading = false }) => {
 
       {/* Submit */}
       <div className="flex justify-end gap-3 border-t border-slate-800 pt-4">
-        <Button type="submit" variant="primary" isLoading={isLoading}>
+        <Button type="submit" variant="primary" isLoading={isLoading || isUploading}>
           {initialData ? 'Cập nhật tài khoản' : 'Tạo tài khoản'}
         </Button>
       </div>

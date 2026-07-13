@@ -1,5 +1,7 @@
 package com.qtanime.animebackend.service.impl;
 
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -9,8 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.qtanime.animebackend.dto.product.ProductAttributeRequest;
 import com.qtanime.animebackend.dto.product.ProductFilterRequest;
@@ -81,8 +87,38 @@ public class ProductServiceImpl implements ProductService {
                 )
         );
 
+        Specification<Product> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
+                String pattern = "%" + request.getKeyword().trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+            if (request.getCategoryId() != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), request.getCategoryId()));
+            }
+
+            if (request.getBrandId() != null) {
+                predicates.add(cb.equal(root.get("brand").get("id"), request.getBrandId()));
+            }
+
+            if (request.getMinPrice() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), request.getMinPrice()));
+            }
+
+            if (request.getMaxPrice() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), request.getMaxPrice()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
         Page<Product> products =
-                productRepository.findAll(pageable);
+                productRepository.findAll(spec, pageable);
 
         return products.map(this::mapToResponse);
     }

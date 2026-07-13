@@ -11,10 +11,10 @@ const PaymentTable = ({ payments = [], isLoading = false }) => {
       REFUNDED: 'bg-indigo-500/10 text-indigo-400 ring-1 ring-indigo-500/20',
     };
     const labels = {
-      PAID: 'Thành công',
+      PAID: 'Đã nhận tiền',
       UNPAID: 'Chưa thanh toán',
       FAILED: 'Thất bại',
-      REFUNDED: 'Hoàn trả',
+      REFUNDED: 'Đã hoàn tiền',
     };
     return (
       <span className={`px-2 py-1 text-xs font-bold rounded-full ${badges[status] || badges.UNPAID}`}>

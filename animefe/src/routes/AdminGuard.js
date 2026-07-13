@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import Loading from '../components/common/Loading';
 
 const AdminGuard = () => {
-  const { user, loading, isAdmin } = useAuth();
+  const { adminUser, loading, isAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -14,7 +14,7 @@ const AdminGuard = () => {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!adminUser || !isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
 

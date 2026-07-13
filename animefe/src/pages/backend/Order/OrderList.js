@@ -13,6 +13,7 @@ const OrderList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
@@ -46,14 +47,28 @@ const OrderList = () => {
     if (statusFilter) {
       fil = fil.filter((o) => o.orderStatus === statusFilter);
     }
+    if (paymentFilter) {
+      fil = fil.filter((o) => o.paymentStatus === paymentFilter);
+    }
     setFiltered(fil);
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, orders]);
+  }, [searchQuery, statusFilter, paymentFilter, orders]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     if (window.confirm(`Xác nhận chuyển trạng thái đơn hàng sang ${newStatus}?`)) {
       try {
         await orderApi.updateStatus(orderId, { orderStatus: newStatus });
+        load();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId, newStatus) => {
+    if (window.confirm(`Xác nhận cập nhật thanh toán đơn hàng này?`)) {
+      try {
+        await orderApi.updatePaymentStatus(orderId, { paymentStatus: newStatus });
         load();
       } catch (err) {
         console.error(err);
@@ -73,19 +88,34 @@ const OrderList = () => {
     { value: 'CANCELLED', label: 'Đã hủy (CANCELLED)' },
   ];
 
+  const paymentOptions = [
+    { value: 'UNPAID', label: 'Chưa thanh toán' },
+    { value: 'PAID', label: 'Đã nhận tiền' },
+    { value: 'REFUNDED', label: 'Đã hoàn tiền' },
+    { value: 'FAILED', label: 'Thất bại' },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Title subtitle="Quản lý thông tin đơn đặt hàng từ khách hàng">
         Đơn hàng ({filtered.length})
       </Title>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/40 p-4 border border-slate-800/80 rounded-xl">
-        <SearchBox placeholder="Tìm khách hàng hoặc SĐT..." onSearch={setSearchQuery} className="max-w-none" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/40 p-4 border border-slate-800/80 rounded-xl">
+        <div className="md:col-span-2">
+          <SearchBox placeholder="Tìm khách hàng hoặc SĐT..." onSearch={setSearchQuery} className="max-w-none" />
+        </div>
         <SelectBox
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           options={statusOptions}
           placeholder="Lọc Trạng thái đơn"
+        />
+        <SelectBox
+          value={paymentFilter}
+          onChange={(e) => setPaymentFilter(e.target.value)}
+          options={paymentOptions}
+          placeholder="Lọc Thanh toán"
         />
       </div>
 
@@ -94,6 +124,7 @@ const OrderList = () => {
         isLoading={isLoading}
         onViewDetails={(id) => navigate(`/admin/orders/show/${id}`)}
         onUpdateStatus={handleUpdateStatus}
+        onUpdatePaymentStatus={handleUpdatePaymentStatus}
       />
 
       <Pagination

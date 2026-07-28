@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useCart from '../../../hooks/useCart';
 import orderApi from '../../../api/orderApi';
 import vnPayApi from '../../../api/vnPayApi';
 import userApi from '../../../api/userApi';
+import couponApi from '../../../api/couponApi';
 import CheckoutForm from '../../../components/frontend/CheckoutForm';
 import Title from '../../../components/common/Title';
 import Loading from '../../../components/common/Loading';
 import { formatCurrency, getImageUrl } from '../../../utils';
 
 const Checkout = () => {
-  const { cartItems: items, loading: cartLoading, cartTotal } = useCart() || {};
+  const { cartItems: items, loading: cartLoading, cartTotal, clearCart } = useCart() || {};
+  const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [couponCode, setCouponCode] = useState(location.state?.appliedCoupon?.code || '');
+  const [appliedCoupon, setAppliedCoupon] = useState(location.state?.appliedCoupon || null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!cartLoading && (!items || items.length === 0)) {
-      alert('Giỏ hàng trống!');
+      toast.warning('Giỏ hàng trống!');
       navigate('/cart');
     }
   }, [items, cartLoading, navigate]);
@@ -34,16 +40,45 @@ const Checkout = () => {
     fetchProfile();
   }, []);
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setApplyingCoupon(true);
+    try {
+      const res = await couponApi.apply({
+        code: couponCode,
+        totalOrderValue: cartTotal
+      });
+      setAppliedCoupon(res);
+      toast.success(res.message || 'Áp dụng mã giảm giá thành công!');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Mã giảm giá không hợp lệ');
+      setAppliedCoupon(null);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
   const handleCheckout = async (formData) => {
     setSubmitting(true);
     try {
       // 1. Create order
-      const orderRes = await orderApi.create(formData);
+      const orderData = {
+        ...formData,
+        couponCode: appliedCoupon?.code || null
+      };
+      const orderRes = await orderApi.create(orderData);
+      
+      // Clear cart locally
+      if (clearCart) {
+        clearCart();
+      }
       
       // 2. Handle Payment
+      const finalAmount = appliedCoupon ? appliedCoupon.finalTotal : cartTotal;
       if (formData.paymentMethod === 'VNPAY') {
         const paymentRes = await vnPayApi.createPayment({
-          amount: cartTotal,
+          amount: finalAmount,
           orderId: orderRes.orderId
         });
         
@@ -52,7 +87,7 @@ const Checkout = () => {
         if (paymentUrl && paymentUrl.startsWith('http')) {
           window.location.href = paymentUrl;
         } else {
-          alert('Lỗi tạo thanh toán VNPAY');
+          toast.error('Lỗi tạo thanh toán VNPAY');
           navigate(`/my-orders/${orderRes.orderId}`);
         }
       } else {
@@ -61,7 +96,7 @@ const Checkout = () => {
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi tạo đơn hàng');
       setSubmitting(false);
     }
   };
@@ -115,13 +150,53 @@ const Checkout = () => {
                   <span>Tạm tính</span>
                   <span>{formatCurrency(cartTotal)}</span>
                 </div>
+                
+                {/* Coupon Input Area */}
+                <div className="flex gap-2 items-start pt-2">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      placeholder="Mã giảm giá..."
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      disabled={!!appliedCoupon}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  {!appliedCoupon ? (
+                    <button 
+                      type="button" 
+                      onClick={handleApplyCoupon}
+                      disabled={applyingCoupon || !couponCode}
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition disabled:opacity-50"
+                    >
+                      {applyingCoupon ? 'Đang áp dụng...' : 'Áp dụng'}
+                    </button>
+                  ) : (
+                    <button 
+                      type="button" 
+                      onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
+                      className="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 text-sm rounded-lg transition"
+                    >
+                      Hủy mã
+                    </button>
+                  )}
+                </div>
+
+                {appliedCoupon && (
+                  <div className="flex justify-between text-sm text-emerald-400 pt-2 border-t border-purple-900/20">
+                    <span>Giảm giá ({appliedCoupon.code})</span>
+                    <span>-{formatCurrency(appliedCoupon.discountAmount)}</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>Phí vận chuyển</span>
                   <span>Miễn phí</span>
                 </div>
                 <div className="flex justify-between font-black text-xl text-emerald-400 mt-2 pt-2 border-t border-purple-900/20">
                   <span>Thành tiền</span>
-                  <span>{formatCurrency(cartTotal)}</span>
+                  <span>{formatCurrency(appliedCoupon ? appliedCoupon.finalTotal : cartTotal)}</span>
                 </div>
               </div>
            </div>

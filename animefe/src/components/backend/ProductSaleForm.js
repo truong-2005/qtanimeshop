@@ -76,8 +76,8 @@ const ProductSaleForm = ({
       onSubmit({
         salePercent: parseInt(salePercent),
         salePrice: parseFloat(salePrice),
-        startDate: new Date(startDate).toISOString(),
-        endDate: new Date(endDate).toISOString(),
+        startDate: startDate.length === 16 ? `${startDate}:00` : startDate,
+        endDate: endDate.length === 16 ? `${endDate}:00` : endDate,
       });
     }
   };

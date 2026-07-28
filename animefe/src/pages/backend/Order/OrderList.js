@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import orderApi from '../../../api/orderApi';
 import OrderTable from '../../../components/backend/OrderTable';
 import SearchBox from '../../../components/common/SearchBox';
@@ -17,12 +18,16 @@ const OrderList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  const load = async () => {
+  const load = async (search, status, payment) => {
     setIsLoading(true);
     try {
-      const res = await orderApi.getAll();
+      const params = {};
+      if (search) params.search = search;
+      if (status) params.status = status;
+      if (payment) params.paymentStatus = payment;
+      
+      const res = await orderApi.getAll(params);
       setOrders(res || []);
-      setFiltered(res || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -31,36 +36,24 @@ const OrderList = () => {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    load(searchQuery, statusFilter, paymentFilter);
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, paymentFilter]);
 
   // Filter orders
-  useEffect(() => {
-    let fil = orders;
-    if (searchQuery) {
-      fil = fil.filter(
-        (o) =>
-          (o.receiverName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (o.phone || '').includes(searchQuery)
-      );
-    }
-    if (statusFilter) {
-      fil = fil.filter((o) => o.orderStatus === statusFilter);
-    }
-    if (paymentFilter) {
-      fil = fil.filter((o) => o.paymentStatus === paymentFilter);
-    }
-    setFiltered(fil);
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter, paymentFilter, orders]);
+  // Local filtering removed in favor of backend filtering
+  // setFiltered(fil) is not needed anymore
+
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     if (window.confirm(`Xác nhận chuyển trạng thái đơn hàng sang ${newStatus}?`)) {
       try {
         await orderApi.updateStatus(orderId, { orderStatus: newStatus });
+        toast.success(`Đã cập nhật trạng thái đơn hàng thành ${newStatus}`);
         load();
       } catch (err) {
         console.error(err);
+        toast.error('Lỗi khi cập nhật trạng thái');
       }
     }
   };
@@ -69,16 +62,18 @@ const OrderList = () => {
     if (window.confirm(`Xác nhận cập nhật thanh toán đơn hàng này?`)) {
       try {
         await orderApi.updatePaymentStatus(orderId, { paymentStatus: newStatus });
+        toast.success('Đã cập nhật trạng thái thanh toán');
         load();
       } catch (err) {
         console.error(err);
+        toast.error('Lỗi khi cập nhật thanh toán');
       }
     }
   };
 
   const pageSize = 5;
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(orders.length / pageSize);
+  const paginated = orders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const statusOptions = [
     { value: 'PENDING', label: 'Chờ duyệt (PENDING)' },
@@ -98,7 +93,7 @@ const OrderList = () => {
   return (
     <div className="flex flex-col gap-6">
       <Title subtitle="Quản lý thông tin đơn đặt hàng từ khách hàng">
-        Đơn hàng ({filtered.length})
+        Đơn hàng ({orders.length})
       </Title>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/40 p-4 border border-slate-800/80 rounded-xl">

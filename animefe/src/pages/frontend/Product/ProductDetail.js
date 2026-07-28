@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import productApi from '../../../api/productApi';
 import cartApi from '../../../api/cartApi';
 import useAuth from '../../../hooks/useAuth';
@@ -21,6 +21,30 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState('');
   const [addingToCart, setAddingToCart] = useState(false);
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+  const navigate = useNavigate();
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      alert('Vui lòng đăng nhập để mua hàng');
+      return;
+    }
+
+    setAddingToCart(true);
+    try {
+      if (addToCart) {
+        const success = await addToCart(product, quantity);
+        if (success) {
+          navigate('/cart');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Có lỗi xảy ra khi mua hàng');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -47,6 +71,21 @@ const ProductDetail = () => {
         } else {
           setSelectedImage('https://placehold.co/600x800?text=No+Image');
         }
+
+        // Initialize selected attributes
+        if (res.attributes && res.attributes.length > 0) {
+          const grouped = res.attributes.reduce((acc, attr) => {
+            if (!acc[attr.name]) acc[attr.name] = [];
+            acc[attr.name].push(attr);
+            return acc;
+          }, {});
+          const initialSelection = {};
+          Object.keys(grouped).forEach(name => {
+            initialSelection[name] = grouped[name][0].value;
+          });
+          setSelectedAttributes(initialSelection);
+        }
+
       } catch (err) {
         console.error('Lỗi tải sản phẩm:', err);
       } finally {
@@ -131,11 +170,11 @@ const ProductDetail = () => {
             </div>
             <h1 className="text-3xl font-extrabold text-slate-900 mb-4 leading-tight">{product.name}</h1>
             
-            <div className="flex items-center gap-4 border-b border-slate-200 pb-6">
-              {product.salePrice ? (
+            <div className="flex flex-col items-center justify-center border border-blue-200 bg-blue-50/50 rounded-xl py-4 px-6 mb-6">
+              {product.salePrice && product.salePrice < product.price ? (
                 <>
-                  <span className="text-3xl font-black text-rose-600">{formatCurrency(product.salePrice)}</span>
-                  <span className="text-lg text-slate-500 line-through">{formatCurrency(product.price)}</span>
+                  <span className="text-3xl font-black text-slate-900">{formatCurrency(product.salePrice)}</span>
+                  <span className="text-lg text-slate-400 font-medium line-through">{formatCurrency(product.price)}</span>
                 </>
               ) : (
                 <span className="text-3xl font-black text-slate-900">{formatCurrency(product.price)}</span>
@@ -154,21 +193,59 @@ const ProductDetail = () => {
                 {product.status !== 'ACTIVE' ? 'Ngừng kinh doanh' : (product.quantity > 0 ? `Còn ${product.quantity} sản phẩm` : 'Hết hàng')}
               </span>
             </div>
-            
-            {product.attributes && product.attributes.length > 0 ? (
-              product.attributes.map((attr, index) => (
-                <div key={attr.id || index} className="flex items-center justify-between py-2 border-b border-slate-200 last:border-0">
-                  <span className="text-slate-500">{attr.name}:</span>
-                  <span className="text-slate-800 text-right font-medium">{attr.value}</span>
-                </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-between py-2">
-                <span className="text-slate-500">Chi tiết khác:</span>
-                <span className="text-slate-800 text-right font-medium">Đang cập nhật</span>
-              </div>
-            )}
           </div>
+
+          {/* Attributes Selection */}
+          {product.attributes && product.attributes.length > 0 && (
+            <div className="flex flex-col gap-6 mt-2">
+              {Object.entries(
+                product.attributes.reduce((acc, attr) => {
+                  if (!acc[attr.name]) acc[attr.name] = [];
+                  acc[attr.name].push(attr);
+                  return acc;
+                }, {})
+              ).map(([name, attrs]) => (
+                <div key={name}>
+                  <h3 className="font-bold text-slate-800 text-base mb-3">{name}</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {attrs.map((attr, idx) => {
+                      const isSelected = selectedAttributes[name] === attr.value;
+                      const isColor = name.toLowerCase().includes('màu');
+                      
+                      return (
+                        <div 
+                          key={attr.id || idx} 
+                          className="relative cursor-pointer"
+                          onClick={() => setSelectedAttributes(prev => ({ ...prev, [name]: attr.value }))}
+                        >
+                          <div className={`flex items-center gap-3 px-4 py-2 rounded-lg border-2 transition-all ${isSelected ? 'border-[#e0052b] shadow-sm' : 'border-slate-200 hover:border-slate-300'}`}>
+                            {isColor && (
+                              <img src={getImageUrl(product.thumbnail, 'https://placehold.co/32')} alt={attr.value} className="w-8 h-10 object-cover rounded bg-slate-100" />
+                            )}
+                            <div className="flex flex-col text-left">
+                              <span className={`text-sm ${isColor ? 'font-bold text-slate-900' : 'font-medium text-slate-800'}`}>{attr.value}</span>
+                              {isColor && (
+                                <span className="text-xs text-slate-600">{formatCurrency(product.salePrice || product.price)}</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Checkmark icon for selected item */}
+                          {isSelected && (
+                            <div className="absolute -top-[1px] -right-[1px] bg-[#e0052b] text-white w-5 h-5 rounded-bl-lg rounded-tr-lg flex items-center justify-center">
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {product.quantity > 0 && product.status === 'ACTIVE' && (
             <div className="mt-auto space-y-4">
@@ -200,7 +277,7 @@ const ProductDetail = () => {
 
               <div className="flex gap-4">
                 <Button
-                  variant="primary"
+                  variant="outline"
                   className="flex-1 justify-center py-3 text-lg"
                   onClick={handleAddToCart}
                   isLoading={addingToCart}
@@ -210,6 +287,18 @@ const ProductDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   Thêm vào giỏ
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1 justify-center py-3 text-lg"
+                  onClick={handleBuyNow}
+                  isLoading={addingToCart}
+                  disabled={product.quantity < 1}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Mua ngay
                 </Button>
               </div>
             </div>

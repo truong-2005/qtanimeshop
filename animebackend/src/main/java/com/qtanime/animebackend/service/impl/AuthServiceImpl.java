@@ -252,6 +252,10 @@ public class AuthServiceImpl implements AuthService {
 
         String token = UUID.randomUUID().toString();
 
+        user.setResetPasswordToken(token);
+        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
         mailService.sendResetPasswordEmail(
                 user.getEmail(),
                 token
@@ -265,8 +269,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void resetPassword(ResetPasswordRequest request) {
 
-        throw new UnsupportedOperationException(
-                "Reset password logic");
+        User user = userRepository.findByResetPasswordToken(request.getToken())
+                .orElseThrow(() -> new BadRequestException("Mã khôi phục không hợp lệ"));
+
+        if (user.getResetPasswordTokenExpiry() != null && user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Mã khôi phục đã hết hạn");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiry(null);
+
+        userRepository.save(user);
     }
 
     // =========================

@@ -1,17 +1,17 @@
 import axiosClient from './axiosClient';
 
 const productStoreApi = {
-  getStoreInformation: () => {
+  getAllStores: () => {
     return axiosClient.get('/api/product-store');
   },
-  createStore: (data) => {
-    return axiosClient.post('/api/product-store', data);
+  getStoreByProductId: (productId) => {
+    return axiosClient.get(`/api/product-store/product/${productId}`);
   },
-  updateStore: (id, data) => {
-    return axiosClient.put(`/api/product-store/${id}`, data);
+  addStock: (data) => {
+    return axiosClient.post('/api/product-store/add', data);
   },
-  deleteStore: (id) => {
-    return axiosClient.delete(`/api/product-store/${id}`);
+  updateStock: (data) => {
+    return axiosClient.put('/api/product-store/update', data);
   }
 };
 

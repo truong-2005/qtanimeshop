@@ -1,0 +1,45 @@
+name: animebackend-system
+
+services:
+  mysql-anime:
+    image: mysql:8.4
+    container_name: mysql-anime
+    environment:
+      MYSQL_DATABASE: animebackend
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - anime-db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - anime-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  anime-service:
+    build:
+      context: .
+    container_name: anime-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-anime:3306/animebackend?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      mysql-anime:
+        condition: service_healthy
+    networks:
+      - anime-network
+
+networks:
+  anime-network:
+    driver: bridge
+
+volumes:
+  anime-db-data:

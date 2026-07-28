@@ -23,6 +23,7 @@ const ProductForm = ({
   });
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState('');
+  const [attributes, setAttributes] = useState([]);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -39,6 +40,9 @@ const ProductForm = ({
       });
       if (initialData.thumbnail) {
         setThumbnailPreview(initialData.thumbnail);
+      }
+      if (initialData.attributes && Array.isArray(initialData.attributes)) {
+        setAttributes(initialData.attributes.map(a => ({ name: a.name, value: a.value })));
       }
     }
   }, [initialData]);
@@ -102,6 +106,14 @@ const ProductForm = ({
     if (thumbnailFile) {
       data.append('thumbnail', thumbnailFile);
     }
+    
+    // Append attributes
+    attributes.forEach((attr, index) => {
+      if (attr.name && attr.value) {
+        data.append(`attributes[${index}].name`, attr.name);
+        data.append(`attributes[${index}].value`, attr.value);
+      }
+    });
 
     if (onSubmit) {
       onSubmit(data);
@@ -202,6 +214,67 @@ const ProductForm = ({
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-sm px-4 py-2.5 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300 resize-none"
               placeholder="Nhập mô tả sản phẩm..."
             />
+          </div>
+
+          <div className="flex flex-col gap-3 mt-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-slate-300">Thuộc tính sản phẩm (Tuỳ chọn)</label>
+              <button
+                type="button"
+                onClick={() => setAttributes([...attributes, { name: '', value: '' }])}
+                className="text-xs bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 px-3 py-1.5 rounded transition-colors flex items-center gap-1"
+              >
+                <span>+</span> Thêm thuộc tính
+              </button>
+            </div>
+            
+            {attributes.length === 0 ? (
+              <div className="text-sm text-slate-500 italic py-2 border border-dashed border-slate-800 rounded-lg text-center">
+                Chưa có thuộc tính nào
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {attributes.map((attr, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      placeholder="Tên (VD: Màu sắc)"
+                      value={attr.name}
+                      onChange={(e) => {
+                        const newAttrs = [...attributes];
+                        newAttrs[idx].name = e.target.value;
+                        setAttributes(newAttrs);
+                      }}
+                      className="flex-1 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-sm px-4 py-2 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Giá trị (VD: Trắng)"
+                      value={attr.value}
+                      onChange={(e) => {
+                        const newAttrs = [...attributes];
+                        newAttrs[idx].value = e.target.value;
+                        setAttributes(newAttrs);
+                      }}
+                      className="flex-1 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-sm px-4 py-2 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newAttrs = attributes.filter((_, i) => i !== idx);
+                        setAttributes(newAttrs);
+                      }}
+                      className="p-2 text-rose-500 hover:bg-rose-500/20 rounded transition-colors"
+                      title="Xoá thuộc tính"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

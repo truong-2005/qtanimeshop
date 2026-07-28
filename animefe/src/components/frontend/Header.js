@@ -10,7 +10,7 @@ import { formatCurrency, getImageUrl, formatRelativeTime } from '../../utils';
 import notificationApi from '../../api/notificationApi';
 
 const Header = () => {
-  const { user, logout } = useAuth() || {};
+  const { user, logout, isAuthenticated } = useAuth() || {};
   const { cartItems } = useCart() || { cartItems: [] };
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -39,12 +39,11 @@ const Header = () => {
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [catRes, brandRes, menuRes, settingRes, notifRes] = await Promise.all([
+        const [catRes, brandRes, menuRes, settingRes] = await Promise.all([
           categoryApi.getAll(),
           brandApi.getAll(),
           menuApi.getAll(),
-          settingApi.getSetting(),
-          notificationApi.getNotifications()
+          settingApi.getSetting()
         ]);
         setCategories(catRes || []);
         setBrands(brandRes || []);
@@ -53,13 +52,21 @@ const Header = () => {
         const sorted = (menuRes || []).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
         setMenus(sorted);
         setSetting(settingRes);
-
-        const list = Array.isArray(notifRes) ? notifRes : [];
-        setNotifications(list);
-        const lastReadId = parseInt(localStorage.getItem('lastReadClientNotificationId') || '0', 10);
-        setUnreadCount(list.filter(n => n.id > lastReadId).length);
       } catch (err) {
         console.error('Failed to load categories/brands/menus/setting for header:', err);
+      }
+
+      // Fetch notifications separately so it doesn't break header if not logged in
+      try {
+        if (user) {
+          const notifRes = await notificationApi.getNotifications();
+          const list = Array.isArray(notifRes) ? notifRes : [];
+          setNotifications(list);
+          const lastReadId = parseInt(localStorage.getItem('lastReadClientNotificationId') || '0', 10);
+          setUnreadCount(list.filter(n => n.id > lastReadId).length);
+        }
+      } catch (err) {
+        console.error('Failed to load notifications:', err);
       }
     };
     fetchDropdownData();
@@ -108,7 +115,7 @@ const Header = () => {
         console.error('Logout failed:', err);
       }
     }
-    navigate('/login');
+    navigate('/');
   };
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
@@ -369,10 +376,15 @@ const Header = () => {
               </div>
               
               <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-2">
-                {cartItems.length === 0 ? (
+                {!isAuthenticated ? (
+                  <div className="p-4 text-center text-slate-500 text-sm">
+                    <p>Vui lòng đăng nhập để xem giỏ hàng</p>
+                    <Link to="/login" className="text-purple-600 hover:text-purple-500 mt-2 inline-block font-medium">Đăng nhập ngay</Link>
+                  </div>
+                ) : cartItems.length === 0 ? (
                   <div className="p-4 text-center text-slate-500 text-sm">
                     <p>Giỏ hàng đang trống</p>
-                    <Link to="/products" className="text-purple-600 hover:text-purple-500 mt-2 inline-block">Mua sắm ngay</Link>
+                    <Link to="/products" className="text-purple-600 hover:text-purple-500 mt-2 inline-block font-medium">Mua sắm ngay</Link>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
@@ -499,9 +511,12 @@ const Header = () => {
           ) : (
             <Link
               to="/login"
-              className="ml-2 px-6 py-2 text-sm font-bold tracking-wide bg-gradient-to-r from-brand-purple to-brand-pink hover:from-purple-800 hover:to-pink-600 text-white rounded-full shadow-[0_0_15px_rgba(180,38,123,0.4)] hover:shadow-[0_0_20px_rgba(180,38,123,0.6)] active:scale-95 transition-all duration-300"
+              className="w-9 h-9 rounded-full border-2 border-slate-200 overflow-hidden flex items-center justify-center bg-slate-100 text-slate-500 hover:text-purple-600 hover:border-purple-200 hover:ring-2 hover:ring-purple-200 transition-all focus:outline-none ml-2"
+              title="Đăng nhập"
             >
-              Sign in
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </Link>
           )}
         </div>

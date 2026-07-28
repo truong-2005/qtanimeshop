@@ -71,6 +71,7 @@ public class VnPayServiceImpl implements VnPayService {
         vnpParams.put("vnp_Locale",     "vn");
         vnpParams.put("vnp_ReturnUrl",  vnPayConfig.getReturnUrl());
         vnpParams.put("vnp_IpAddr",     getClientIp(httpRequest));
+        vnpParams.put("vnp_BankCode",   "VNPAYQR"); // Force QR payment method
         
         String createDate = VnPayUtils.getCurrentTime();
         vnpParams.put("vnp_CreateDate", createDate);

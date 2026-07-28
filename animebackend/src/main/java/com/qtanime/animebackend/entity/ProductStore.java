@@ -26,4 +26,6 @@ public class ProductStore extends BaseEntity {
     private Integer importQuantity;
 
     private Integer currentQuantity;
+
+    private Double importPrice;
 }

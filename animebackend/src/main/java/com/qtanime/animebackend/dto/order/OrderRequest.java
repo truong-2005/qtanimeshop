@@ -20,4 +20,6 @@ public class OrderRequest {
     private String note;
 
     private PaymentMethod paymentMethod;
+
+    private String couponCode;
 }

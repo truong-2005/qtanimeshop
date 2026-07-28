@@ -28,4 +28,8 @@ public class OrderResponse {
     private String paymentMethod;
 
     private String paymentStatus;
+
+    private String couponCode;
+
+    private Double discountAmount;
 }

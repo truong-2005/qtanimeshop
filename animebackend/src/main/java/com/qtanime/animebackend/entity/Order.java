@@ -25,6 +25,11 @@ public class Order extends BaseEntity {
 
     private String phone;
 
+    private String couponCode;
+
+    @Builder.Default
+    private Double discountAmount = 0.0;
+
     private String address;
 
     private Double totalPrice;

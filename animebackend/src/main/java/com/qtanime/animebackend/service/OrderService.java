@@ -6,6 +6,7 @@ import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
 import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
+import com.qtanime.animebackend.dto.order.OrderFilterRequest;
 
 public interface OrderService {
 
@@ -25,7 +26,7 @@ public interface OrderService {
     // ADMIN
     // =========================
 
-    List<OrderResponse> getAll();
+    List<OrderResponse> getAll(OrderFilterRequest request);
 
     OrderResponse getById(Long id);
 

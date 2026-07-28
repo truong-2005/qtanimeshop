@@ -1,45 +1,41 @@
 package com.qtanime.animebackend.controller;
 
-import com.qtanime.animebackend.dto.common.MessageResponse;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.qtanime.animebackend.dto.product.ProductStoreRequest;
+import com.qtanime.animebackend.dto.product.ProductStoreResponse;
+import com.qtanime.animebackend.service.ProductStoreService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/product-store")
+@RequiredArgsConstructor
 public class ProductStoreController {
 
+    private final ProductStoreService productStoreService;
+
     @GetMapping
-    public MessageResponse getStoreInformation() {
-
-        return MessageResponse.builder()
-                .message("Thông tin kho sản phẩm")
-                .build();
+    public ResponseEntity<List<ProductStoreResponse>> getAllStores() {
+        return ResponseEntity.ok(productStoreService.getAllStores());
     }
 
-    @PostMapping
-    public MessageResponse createStore() {
-
-        return MessageResponse.builder()
-                .message("Tạo kho sản phẩm thành công")
-                .build();
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<ProductStoreResponse> getStoreByProductId(@PathVariable Long productId) {
+        return ResponseEntity.ok(productStoreService.getStoreByProductId(productId));
     }
 
-    @PutMapping("/{id}")
-    public MessageResponse updateStore(
-            @PathVariable Long id
-    ) {
-
-        return MessageResponse.builder()
-                .message("Cập nhật kho sản phẩm thành công")
-                .build();
+    @PostMapping("/add")
+    public ResponseEntity<ProductStoreResponse> addStock(@Valid @RequestBody ProductStoreRequest request) {
+        return ResponseEntity.ok(productStoreService.addStock(request));
     }
 
-    @DeleteMapping("/{id}")
-    public MessageResponse deleteStore(
-            @PathVariable Long id
-    ) {
-
-        return MessageResponse.builder()
-                .message("Xóa kho sản phẩm thành công")
-                .build();
+    @PutMapping("/update")
+    public ResponseEntity<ProductStoreResponse> updateStock(@Valid @RequestBody ProductStoreRequest request) {
+        return ResponseEntity.ok(productStoreService.updateStock(request));
     }
 }

@@ -38,13 +38,19 @@ const ProductCard = ({ product }) => {
         />
 
         {/* Quick Add to Cart Hover overlay */}
-        <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
           <button
             onClick={handleAddToCart}
             className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all duration-300"
           >
             Add to Cart
           </button>
+          <div className="w-9 h-9 bg-white hover:bg-purple-100 text-slate-700 hover:text-purple-600 rounded-lg flex items-center justify-center shadow-lg transition-colors cursor-pointer" title="Xem chi tiết">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </div>
         </div>
       </Link>
 
@@ -67,10 +73,10 @@ const ProductCard = ({ product }) => {
         <div className="flex items-center gap-2 text-left justify-start">
           {hasSale ? (
             <>
-              <span className="text-base font-extrabold text-rose-600">
+              <span className="text-lg font-black text-rose-600">
                 {formatCurrency(product.salePrice)}
               </span>
-              <span className="text-xs text-slate-500 line-through">
+              <span className="text-sm text-slate-400 font-medium line-through">
                 {formatCurrency(product.price)}
               </span>
             </>

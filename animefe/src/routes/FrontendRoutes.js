@@ -61,8 +61,8 @@ const FrontendRoutes = () => {
         <Route path="/chatbot" element={<ChatBotPage />} />
 
         {/* Protected Routes (User Guard) */}
+        <Route path="/cart" element={<CartList />} />
         <Route element={<UserGuard />}>
-          <Route path="/cart" element={<CartList />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment-result" element={<PaymentResult />} />
           

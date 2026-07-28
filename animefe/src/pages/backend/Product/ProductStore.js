@@ -10,6 +10,8 @@ const ProductStore = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(0);
+  const [addQuantity, setAddQuantity] = useState('');
+  const [importPrice, setImportPrice] = useState('');
   const [isFetching, setIsFetching] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +21,14 @@ const ProductStore = () => {
       try {
         const prod = await productApi.getById(id);
         setProduct(prod);
-        setQuantity(prod.quantity || 0);
+        
+        // Cố gắng lấy số lượng tồn kho hiện tại từ kho
+        try {
+          const storeRes = await productStoreApi.getStoreByProductId(id);
+          setQuantity(storeRes?.quantity || prod.quantity || 0);
+        } catch (storeErr) {
+           setQuantity(prod.quantity || 0);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -33,12 +42,16 @@ const ProductStore = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Mock store update calls updateStore
-      await productStoreApi.updateStore(id);
+      await productStoreApi.addStock({
+        productId: id,
+        quantity: parseInt(addQuantity),
+        importPrice: parseFloat(importPrice)
+      });
       alert('Nhập hàng vào kho thành công!');
       navigate('/admin/products');
     } catch (err) {
       console.error(err);
+      alert('Có lỗi xảy ra khi nhập kho.');
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +81,17 @@ const ProductStore = () => {
           placeholder="Nhập số lượng..."
           min="1"
           required
+          value={addQuantity}
+          onChange={(e) => setAddQuantity(e.target.value)}
+        />
+        <Input
+          label="Giá nhập"
+          type="number"
+          placeholder="Nhập giá..."
+          min="0"
+          required
+          value={importPrice}
+          onChange={(e) => setImportPrice(e.target.value)}
         />
         <div className="flex justify-end pt-2 border-t border-slate-800">
           <Button type="submit" variant="primary" isLoading={isLoading}>Xác nhận nhập kho</Button>

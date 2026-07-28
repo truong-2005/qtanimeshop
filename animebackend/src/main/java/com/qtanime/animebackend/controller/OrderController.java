@@ -4,6 +4,7 @@ import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
 import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
+import com.qtanime.animebackend.dto.order.OrderFilterRequest;
 import com.qtanime.animebackend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +58,9 @@ public class OrderController {
     // =========================
 
     @GetMapping
-    public List<OrderResponse> getAll() {
+    public List<OrderResponse> getAll(@ModelAttribute OrderFilterRequest request) {
 
-        return orderService.getAll();
+        return orderService.getAll(request);
     }
 
     @GetMapping("/{id}")

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import productApi from '../../../api/productApi';
 import productSaleApi from '../../../api/productSaleApi';
 import ProductSaleForm from '../../../components/backend/ProductSaleForm';
@@ -31,10 +32,11 @@ const ProductSale = () => {
     setIsLoading(true);
     try {
       await productSaleApi.createSale(productId, data);
-      alert('Thiết lập khuyến mãi thành công!');
+      toast.success('Thiết lập khuyến mãi thành công!');
       navigate('/admin/products');
     } catch (err) {
       console.error(err);
+      toast.error('Lỗi thiết lập khuyến mãi');
     } finally {
       setIsLoading(false);
     }
@@ -45,10 +47,11 @@ const ProductSale = () => {
       setIsLoading(true);
       try {
         await productSaleApi.removeSale(productId);
-        alert('Huỷ khuyến mãi thành công!');
+        toast.success('Huỷ khuyến mãi thành công!');
         navigate('/admin/products');
       } catch (err) {
         console.error(err);
+        toast.error('Lỗi khi huỷ khuyến mãi');
       } finally {
         setIsLoading(false);
       }

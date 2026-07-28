@@ -18,6 +18,8 @@ import { ChatBotManage } from '../pages/backend/ChatBot';
 import { PaymentList, PaymentShow, PaymentCreate, PaymentUpdate } from '../pages/backend/Payment';
 import { SettingUpdate } from '../pages/backend/Setting';
 import { UploadFile } from '../pages/backend/Upload';
+import CouponList from '../pages/backend/Coupon/CouponList';
+import CouponForm from '../pages/backend/Coupon/CouponForm';
 
 const BackendRoutes = () => {
   return (
@@ -34,6 +36,10 @@ const BackendRoutes = () => {
         <Route path="/products/images/:productId" element={<ProductImage />} />
         <Route path="/products/sale/:productId" element={<ProductSale />} />
         <Route path="/products/store/:id" element={<ProductStore />} />
+        
+        {/* Coupons */}
+        <Route path="/coupons" element={<CouponList />} />
+        <Route path="/coupons/create" element={<CouponForm />} />
         
         {/* Orders */}
         <Route path="/orders" element={<OrderList />} />

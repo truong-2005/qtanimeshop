@@ -26,6 +26,7 @@ const ProductList = () => {
     brandId: '',
     minPrice: '',
     maxPrice: '',
+    status: '',
     page: 0,
     size: 5,
     sortBy: 'id',
@@ -155,6 +156,17 @@ const ProductList = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </Link>
+          
+          {/* Store Input */}
+          <Link
+            to={`/admin/products/store/${product.id}`}
+            className="p-1.5 rounded bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-400 transition-colors"
+            title="Nhập kho"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </Link>
 
           <Link
             to={`/admin/products/edit/${product.id}`}
@@ -191,8 +203,10 @@ const ProductList = () => {
       </div>
 
       {/* Filter and Search controls */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-4 border border-slate-800/80 rounded-xl">
-        <SearchBox placeholder="Tìm kiếm mô hình..." onSearch={handleSearch} className="max-w-none" />
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-slate-900/40 p-4 border border-slate-800/80 rounded-xl">
+        <div className="md:col-span-2">
+          <SearchBox placeholder="Tìm kiếm mô hình..." onSearch={handleSearch} className="max-w-none" />
+        </div>
         <SelectBox
           name="categoryId"
           value={filters.categoryId}
@@ -206,6 +220,17 @@ const ProductList = () => {
           onChange={handleFilterSelect}
           options={brands.map((b) => ({ value: b.id, label: b.name }))}
           placeholder="Lọc Hãng sản xuất"
+        />
+        <SelectBox
+          name="status"
+          value={filters.status}
+          onChange={handleFilterSelect}
+          options={[
+            { value: 'ACTIVE', label: 'Đang bán (ACTIVE)' },
+            { value: 'INACTIVE', label: 'Ngừng bán (INACTIVE)' },
+            { value: 'OUT_OF_STOCK', label: 'Hết hàng (OUT_OF_STOCK)' },
+          ]}
+          placeholder="Lọc Trạng thái"
         />
         <Input
           name="minPrice"

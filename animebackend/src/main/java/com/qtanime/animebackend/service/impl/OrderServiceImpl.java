@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.qtanime.animebackend.dto.order.OrderRequest;
 import com.qtanime.animebackend.dto.order.OrderResponse;
 import com.qtanime.animebackend.dto.order.OrderStatusRequest;
 import com.qtanime.animebackend.dto.order.PaymentStatusRequest;
+import com.qtanime.animebackend.dto.order.OrderFilterRequest;
 import com.qtanime.animebackend.entity.Cart;
 import com.qtanime.animebackend.entity.CartItem;
 import com.qtanime.animebackend.entity.Order;
@@ -24,13 +26,17 @@ import com.qtanime.animebackend.repository.CartRepository;
 import com.qtanime.animebackend.repository.OrderItemRepository;
 import com.qtanime.animebackend.repository.OrderRepository;
 import com.qtanime.animebackend.repository.UserRepository;
+import com.qtanime.animebackend.repository.OrderSpecification;
 import com.qtanime.animebackend.service.MailService;
 import com.qtanime.animebackend.service.OrderService;
+import com.qtanime.animebackend.service.CouponService;
+import com.qtanime.animebackend.entity.Coupon;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -44,6 +50,8 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
 
     private final MailService mailService;
+
+    private final CouponService couponService;
 
     @Override
     public OrderResponse createOrder(OrderRequest request) {
@@ -61,8 +69,25 @@ public class OrderServiceImpl implements OrderService {
         double totalPrice = 0;
 
         for (CartItem item : cart.getCartItems()) {
-
             totalPrice += item.getPrice() * item.getQuantity();
+        }
+
+        Double discountAmount = 0.0;
+        String appliedCouponCode = null;
+
+        if (request.getCouponCode() != null && !request.getCouponCode().isEmpty()) {
+            Coupon coupon = couponService.getValidCouponByCode(request.getCouponCode(), totalPrice);
+            if (coupon.getDiscountType() == com.qtanime.animebackend.enums.DiscountType.PERCENT) {
+                discountAmount = totalPrice * (coupon.getDiscountValue() / 100.0);
+            } else {
+                discountAmount = coupon.getDiscountValue();
+            }
+            if (discountAmount > totalPrice) {
+                discountAmount = totalPrice;
+            }
+            appliedCouponCode = coupon.getCode();
+            coupon.setUsedCount(coupon.getUsedCount() + 1);
+            // JPA will auto update coupon since it's in transaction
         }
 
         Order order = Order.builder()
@@ -70,7 +95,9 @@ public class OrderServiceImpl implements OrderService {
                 .receiverName(request.getReceiverName())
                 .phone(request.getPhone())
                 .address(request.getAddress())
-                .totalPrice(totalPrice)
+                .totalPrice(totalPrice - discountAmount)
+                .discountAmount(discountAmount)
+                .couponCode(appliedCouponCode)
                 .orderStatus(OrderStatus.PENDING)
                 .paymentMethod(request.getPaymentMethod())
                 .paymentStatus(PaymentStatus.UNPAID)
@@ -91,7 +118,10 @@ public class OrderServiceImpl implements OrderService {
             orderItemRepository.save(orderItem);
         }
 
-        cartItemRepository.deleteAll(cart.getCartItems());
+        // Delete cart items safely
+        List<CartItem> itemsToDelete = new ArrayList<>(cart.getCartItems());
+        cart.getCartItems().clear();
+        cartItemRepository.deleteAll(itemsToDelete);
 
         mailService.sendOrderSuccessEmail(
                 user.getEmail(),
@@ -141,9 +171,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getAll() {
+    public List<OrderResponse> getAll(OrderFilterRequest request) {
 
-        return orderRepository.findAll()
+        return orderRepository.findAll(OrderSpecification.getFilter(request))
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -214,6 +244,8 @@ public class OrderServiceImpl implements OrderService {
                 .orderStatus(order.getOrderStatus().name())
                 .paymentMethod(order.getPaymentMethod().name())
                 .paymentStatus(order.getPaymentStatus().name())
+                .couponCode(order.getCouponCode())
+                .discountAmount(order.getDiscountAmount())
                 .build();
     }
 

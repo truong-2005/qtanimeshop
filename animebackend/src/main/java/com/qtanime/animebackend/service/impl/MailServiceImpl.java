@@ -45,7 +45,7 @@ public class MailServiceImpl implements MailService {
         message.setSubject("Đặt lại mật khẩu");
 
         message.setText(
-                "Link reset password: http://localhost:8083/reset-password?token="
+                "Link reset password: http://localhost:3000/reset-password?token="
                         + token
         );
 

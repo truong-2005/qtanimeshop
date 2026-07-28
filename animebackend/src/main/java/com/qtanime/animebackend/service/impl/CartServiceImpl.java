@@ -73,11 +73,23 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> createCart(user));
 
+        Double finalPrice = product.getPrice();
+        if (product.getProductSale() != null) {
+            com.qtanime.animebackend.entity.ProductSale sale = product.getProductSale();
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if ((sale.getStartDate() == null || !now.isBefore(sale.getStartDate())) &&
+                (sale.getEndDate() == null || !now.isAfter(sale.getEndDate()))) {
+                if (sale.getSalePrice() != null && sale.getSalePrice() < finalPrice) {
+                    finalPrice = sale.getSalePrice();
+                }
+            }
+        }
+
         CartItem item = CartItem.builder()
                 .cart(cart)
                 .product(product)
                 .quantity(request.getQuantity())
-                .price(product.getPrice())
+                .price(finalPrice)
                 .build();
 
         cartItemRepository.save(item);
@@ -134,7 +146,9 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Giỏ hàng không tồn tại"));
 
-        cartItemRepository.deleteAll(cart.getCartItems());
+        List<CartItem> itemsToDelete = new ArrayList<>(cart.getCartItems());
+        cart.getCartItems().clear();
+        cartItemRepository.deleteAll(itemsToDelete);
     }
 
     private Cart createCart(User user) {

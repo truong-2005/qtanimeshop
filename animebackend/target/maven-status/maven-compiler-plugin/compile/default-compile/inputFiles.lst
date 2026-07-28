@@ -15,6 +15,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\controller\CartController
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\CategoryController.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\ChatBotController.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\CommentController.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\controller\CouponController.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\DashboardController.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\MenuController.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\controller\NotificationController.java
@@ -48,6 +49,11 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\dto\comment\CommentRespon
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\common\ApiResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\common\MessageResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\common\PaginationResponse.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\coupon\CouponApplyRequest.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\coupon\CouponApplyResponse.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\coupon\CouponRequest.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\coupon\CouponResponse.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderFilterRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\order\OrderStatusRequest.java
@@ -61,6 +67,8 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductImageR
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductSaleRequest.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductStoreRequest.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductStoreResponse.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\product\ProductVariantRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\review\ReviewRequest.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\dto\review\ReviewResponse.java
@@ -77,6 +85,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\entity\ChatMessage.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Comment.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\CommentReply.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Contact.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Coupon.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Menu.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Notification.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Order.java
@@ -96,6 +105,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Role.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Setting.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\Topic.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\entity\User.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\enums\DiscountType.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\enums\Gender.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\enums\OrderStatus.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\enums\PaymentMethod.java
@@ -121,10 +131,12 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\repository\CategoryReposi
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\ChatMessageRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\CommentReplyRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\CommentRepository.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\repository\CouponRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\MenuRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\NotificationRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\OrderItemRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\OrderRepository.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\repository\OrderSpecification.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\PaymentRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\PostRepository.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\repository\ProductAttributeRepository.java
@@ -153,6 +165,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\service\CartService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\CategoryService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\ChatBotService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\CommentService.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\service\CouponService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\DashboardService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\AuthServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\BannerServiceImpl.java
@@ -161,6 +174,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\CartServiceI
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\CategoryServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\ChatBotServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\CommentServiceImpl.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\CouponServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\DashboardServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\MailServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\MenuServiceImpl.java
@@ -169,6 +183,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\OrderService
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\PaymentServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\PostServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\ProductServiceImpl.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\ProductStoreServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\ReviewServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\SettingServiceImpl.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\impl\TopicServiceImpl.java
@@ -182,6 +197,7 @@ C:\animebackend\src\main\java\com\qtanime\animebackend\service\OrderService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\PaymentService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\PostService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\ProductService.java
+C:\animebackend\src\main\java\com\qtanime\animebackend\service\ProductStoreService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\ReviewService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\SettingService.java
 C:\animebackend\src\main\java\com\qtanime\animebackend\service\TopicService.java

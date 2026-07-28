@@ -57,6 +57,7 @@ const ProductAll = () => {
         const params = {
           ...filters,
           size: pageData.size,
+          status: 'ACTIVE'
         };
         // Remove empty params
         Object.keys(params).forEach(k => {

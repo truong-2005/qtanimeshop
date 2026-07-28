@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import authApi from '../../../api/authApi';
 import Title from '../../../components/common/Title';
 import Input from '../../../components/common/Input';
 import Button from '../../../components/common/Button';
 
 const ResetPassword = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialToken = searchParams.get('token') || '';
+
   const [formData, setFormData] = useState({
-    token: '',
+    token: initialToken,
     newPassword: '',
     confirmPassword: ''
   });

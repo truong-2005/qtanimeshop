@@ -13,6 +13,9 @@ const BannerForm = ({ initialData = null, onSubmit, isLoading = false }) => {
   const [imagePreview, setImagePreview] = useState('');
   const [errors, setErrors] = useState({});
 
+  const [imageMethod, setImageMethod] = useState('upload'); // 'upload' or 'url'
+  const [imageUrlInput, setImageUrlInput] = useState('');
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -22,6 +25,10 @@ const BannerForm = ({ initialData = null, onSubmit, isLoading = false }) => {
         active: initialData.active !== undefined ? initialData.active : true,
       });
       if (initialData.image) {
+        if (initialData.image.startsWith('http')) {
+          setImageMethod('url');
+          setImageUrlInput(initialData.image);
+        }
         setImagePreview(initialData.image);
       }
     }
@@ -54,7 +61,13 @@ const BannerForm = ({ initialData = null, onSubmit, isLoading = false }) => {
   const validate = () => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = 'Tiêu đề banner là bắt buộc';
-    if (!imagePreview) newErrors.image = 'Hình ảnh banner là bắt buộc';
+    
+    if (imageMethod === 'upload' && !imagePreview) {
+      newErrors.image = 'Hình ảnh banner là bắt buộc';
+    } else if (imageMethod === 'url' && !imageUrlInput.trim()) {
+      newErrors.image = 'Link hình ảnh là bắt buộc';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -69,8 +82,12 @@ const BannerForm = ({ initialData = null, onSubmit, isLoading = false }) => {
     data.append('link', formData.link);
     data.append('description', formData.description);
     data.append('active', formData.active);
-    if (imageFile) {
+    
+    if (imageMethod === 'upload' && imageFile) {
       data.append('file', imageFile);
+    } else if (imageMethod === 'url') {
+      const urlBlob = new Blob([imageUrlInput], { type: 'text/plain' });
+      data.append('file', urlBlob, `URL:${imageUrlInput}`);
     }
 
     if (onSubmit) {
@@ -135,45 +152,98 @@ const BannerForm = ({ initialData = null, onSubmit, isLoading = false }) => {
         {/* Banner Image Upload */}
         <div className="flex flex-col gap-2.5">
           <label className="text-sm font-medium text-slate-300">Hình ảnh Banner</label>
-          <div className={`relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-4 min-h-[200px] text-center transition-all ${
-            errors.image ? 'border-rose-500/50 bg-rose-950/5' : 'border-slate-800 bg-slate-950/20 hover:border-indigo-500/50'
-          }`}>
-            {imagePreview ? (
-              <div className="relative w-full h-full flex flex-col gap-3">
-                <img
-                  src={imagePreview}
-                  alt="Banner preview"
-                  className="w-full h-40 object-cover rounded-lg border border-slate-800 shadow"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageFile(null);
-                    setImagePreview('');
-                  }}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-rose-500 hover:bg-slate-950 transition-colors shadow"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-8">
-                <svg className="w-10 h-10 text-slate-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-xs font-semibold text-slate-400">Chọn hoặc kéo thả ảnh vào đây</span>
-                <span className="text-[10px] text-slate-600 mt-1">Hỗ trợ JPG, PNG, WEBP</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-            )}
+          
+          {/* Method Selection */}
+          <div className="flex gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800 text-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setImageMethod('upload');
+                setImagePreview(imageFile ? URL.createObjectURL(imageFile) : (initialData?.image && !initialData.image.startsWith('http') ? initialData.image : ''));
+              }}
+              className={`flex-1 py-1.5 rounded-md font-bold transition-all ${imageMethod === 'upload' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              Tải file lên
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setImageMethod('url');
+                setImagePreview(imageUrlInput);
+              }}
+              className={`flex-1 py-1.5 rounded-md font-bold transition-all ${imageMethod === 'url' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            >
+              Nhập link ảnh URL
+            </button>
           </div>
+
+          {imageMethod === 'url' ? (
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Dán link ảnh banner (https://...)"
+                value={imageUrlInput}
+                onChange={(e) => {
+                  setImageUrlInput(e.target.value);
+                  setImagePreview(e.target.value);
+                  if (errors.image) setErrors(prev => ({ ...prev, image: '' }));
+                }}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-sm px-4 py-2 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+              />
+              {imagePreview && (
+                <div className="relative border border-slate-800 rounded-xl p-2 bg-slate-950/20">
+                  <img
+                    src={imagePreview}
+                    alt="Banner URL preview"
+                    className="w-full h-40 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/600x250?text=Link+Ảnh+Lỗi';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className={`relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-4 min-h-[200px] text-center transition-all ${
+              errors.image ? 'border-rose-500/50 bg-rose-950/5' : 'border-slate-800 bg-slate-950/20 hover:border-indigo-500/50'
+            }`}>
+              {imagePreview ? (
+                <div className="relative w-full h-full flex flex-col gap-3">
+                  <img
+                    src={imagePreview}
+                    alt="Banner preview"
+                    className="w-full h-40 object-cover rounded-lg border border-slate-800 shadow"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview('');
+                    }}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-rose-500 hover:bg-slate-950 transition-colors shadow"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-8">
+                  <svg className="w-10 h-10 text-slate-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-xs font-semibold text-slate-400">Chọn hoặc kéo thả ảnh vào đây</span>
+                  <span className="text-[10px] text-slate-600 mt-1">Hỗ trợ JPG, PNG, WEBP</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          )}
           {errors.image && (
             <span className="text-xs text-rose-500 mt-1">{errors.image}</span>
           )}

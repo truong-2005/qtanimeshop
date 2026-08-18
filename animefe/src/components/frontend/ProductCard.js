@@ -35,6 +35,7 @@ const ProductCard = ({ product }) => {
           src={getImageUrl(product.thumbnail, 'https://placehold.co/200x250')}
           alt={product.name}
           className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/200x250'; }}
         />
 
         {/* Quick Add to Cart Hover overlay */}

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import tokenService from '../services/tokenService';
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8083';
+const baseURL = process.env.REACT_APP_API_URL || '';
 
 const axiosClient = axios.create({
   baseURL,

@@ -11,7 +11,7 @@ import notificationApi from '../../api/notificationApi';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth() || {};
-  const { cartItems } = useCart() || { cartItems: [] };
+  const { cartItems = [] } = useCart() || {};
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -118,8 +118,17 @@ const Header = () => {
     navigate('/');
   };
 
-  const totalCartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
-  const totalCartValue = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 0)), 0);
+  const visibleCartItems = isAuthenticated
+    ? cartItems.filter((item) => {
+        const quantity = Number(item?.quantity) || 0;
+        return quantity > 0 && (item.productId || item.id || item.productName || item.name);
+      })
+    : [];
+  const totalCartCount = visibleCartItems.reduce((acc, item) => acc + (Number(item.quantity) || 0), 0);
+  const totalCartValue = visibleCartItems.reduce((acc, item) => {
+    const quantity = Number(item.quantity) || 0;
+    return acc + (Number(item.totalPrice) || (Number(item.price) || 0) * quantity);
+  }, 0);
 
   const isActive = (path) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -381,25 +390,25 @@ const Header = () => {
                     <p>Vui lòng đăng nhập để xem giỏ hàng</p>
                     <Link to="/login" className="text-purple-600 hover:text-purple-500 mt-2 inline-block font-medium">Đăng nhập ngay</Link>
                   </div>
-                ) : cartItems.length === 0 ? (
+                ) : visibleCartItems.length === 0 ? (
                   <div className="p-4 text-center text-slate-500 text-sm">
                     <p>Giỏ hàng đang trống</p>
                     <Link to="/products" className="text-purple-600 hover:text-purple-500 mt-2 inline-block font-medium">Mua sắm ngay</Link>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    {cartItems.slice(0, 5).map((item, idx) => (
+                    {visibleCartItems.slice(0, 5).map((item, idx) => (
                       <Link 
                         key={idx} 
                         to={`/product/${item.slug || item.productId || ''}`}
                         className="flex gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors group/item"
                       >
                         <div className="w-12 h-16 shrink-0 bg-white rounded overflow-hidden border border-slate-200">
-                          <img src={getImageUrl(item.thumbnail, 'https://placehold.co/50x70')} alt={item.name} className="w-full h-full object-cover" />
+                          <img src={getImageUrl(item.thumbnail, 'https://placehold.co/50x70')} alt={item.name || item.productName} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex flex-col justify-center flex-1 min-w-0">
                           <p className="text-sm font-semibold text-slate-800 truncate group-hover/item:text-purple-600 transition-colors">
-                            {item.name}
+                            {item.name || item.productName}
                           </p>
                           <div className="flex items-center justify-between mt-1">
                             <span className="text-xs text-slate-500">SL: {item.quantity}</span>
@@ -408,16 +417,16 @@ const Header = () => {
                         </div>
                       </Link>
                     ))}
-                    {cartItems.length > 5 && (
+                    {visibleCartItems.length > 5 && (
                       <div className="text-center py-2 text-xs text-slate-400 font-medium">
-                        Và {cartItems.length - 5} sản phẩm khác...
+                        Và {visibleCartItems.length - 5} sản phẩm khác...
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              {cartItems.length > 0 && (
+              {visibleCartItems.length > 0 && (
                 <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm text-slate-500 font-medium">Tổng tiền:</span>
@@ -509,15 +518,20 @@ const Header = () => {
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="w-9 h-9 rounded-full border-2 border-slate-200 overflow-hidden flex items-center justify-center bg-slate-100 text-slate-500 hover:text-purple-600 hover:border-purple-200 hover:ring-2 hover:ring-purple-200 transition-all focus:outline-none ml-2"
-              title="Đăng nhập"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </Link>
+            <div className="flex items-center gap-2 ml-2">
+              <Link
+                to="/login"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-purple-700 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-all"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                to="/register"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-md transition-all"
+              >
+                Đăng ký
+              </Link>
+            </div>
           )}
         </div>
       </div>

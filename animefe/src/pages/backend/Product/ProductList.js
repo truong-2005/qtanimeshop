@@ -10,7 +10,7 @@ import SelectBox from '../../../components/common/SelectBox';
 import Input from '../../../components/common/Input';
 import Pagination from '../../../components/common/Pagination';
 import Title from '../../../components/common/Title';
-import { formatCurrency, formatDate, getImageUrl } from '../../../utils';
+import { formatCurrency, getImageUrl } from '../../../utils';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -116,7 +116,15 @@ const ProductList = () => {
     <tr key={product.id} className="hover:bg-slate-900/40 border-b border-slate-900 transition-colors text-slate-300">
       <td className="px-6 py-4 font-semibold text-slate-500">#{product.id}</td>
       <td className="px-6 py-4">
-        <img src={getImageUrl(product.thumbnail, 'https://placehold.co/40x48?text=No+Image')} alt="Product" className="w-10 h-12 object-cover rounded border border-slate-800 bg-slate-950" />
+        <img
+          src={getImageUrl(product.thumbnail, 'https://placehold.co/40x48?text=No+Image')}
+          alt={product.name || 'Product'}
+          className="w-10 h-12 object-cover rounded border border-slate-800 bg-slate-950"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://placehold.co/40x48?text=No+Image';
+          }}
+        />
       </td>
       <td className="px-6 py-4">
         <div>

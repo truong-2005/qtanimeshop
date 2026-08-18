@@ -136,7 +136,7 @@ const ProductDetail = () => {
         {/* Images */}
         <div className="space-y-4">
           <div className="aspect-[4/5] rounded-xl overflow-hidden bg-slate-50 border border-slate-200">
-            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover" />
+            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x800?text=No+Image'; }} />
           </div>
           {product.images && product.images.length > 0 && (
             <div className="grid grid-cols-4 gap-4">
@@ -146,7 +146,7 @@ const ProductDetail = () => {
                   onClick={() => setSelectedImage(getImageUrl(img.imageUrl, 'https://placehold.co/600x800?text=No+Image'))}
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedImage === getImageUrl(img.imageUrl, 'https://placehold.co/600x800?text=No+Image') ? 'border-purple-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={getImageUrl(img.imageUrl, 'https://placehold.co/150')} alt="thumbnail" className="w-full h-full object-cover" />
+                  <img src={getImageUrl(img.imageUrl, 'https://placehold.co/150')} alt="thumbnail" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150'; }} />
                 </button>
               ))}
             </div>

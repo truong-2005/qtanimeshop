@@ -517,6 +517,12 @@ String thumbnail =
                 return null;
             }
 
+            // Check if the file is actually a direct internet URL passed from frontend
+            String originalName = file.getOriginalFilename();
+            if (originalName != null && originalName.startsWith("URL:")) {
+                return originalName.substring(4); // Return the direct URL (http://... or https://...)
+            }
+
             File folder =
                     new File(
                             "uploads/products"

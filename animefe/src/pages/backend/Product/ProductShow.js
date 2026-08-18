@@ -31,7 +31,15 @@ const ProductShow = () => {
   return (
     <div className="bg-slate-900 rounded-xl p-6 border border-slate-800 max-w-xl text-left flex flex-col gap-4">
       <h3 className="text-lg font-bold text-white">Chi tiết sản phẩm</h3>
-      <img src={getImageUrl(product.thumbnail, 'https://placehold.co/128x160?text=No+Image')} alt={product.name} className="w-32 h-40 object-cover rounded border border-slate-800 bg-slate-950" />
+      <img
+        src={getImageUrl(product.thumbnail, 'https://placehold.co/128x160?text=No+Image')}
+        alt={product.name}
+        className="w-32 h-40 object-cover rounded border border-slate-800 bg-slate-950"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = 'https://placehold.co/128x160?text=No+Image';
+        }}
+      />
       <div className="flex flex-col gap-2 text-sm text-slate-300 mt-2">
         <p><span className="font-semibold text-slate-500">ID:</span> #{product.id}</p>
         <p><span className="font-semibold text-slate-500">Tên:</span> {product.name}</p>

@@ -2,6 +2,7 @@
   "name": "animefe",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8083",
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.0",
     "axios": "^1.17.0",

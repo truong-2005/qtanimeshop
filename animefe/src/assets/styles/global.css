@@ -4,6 +4,10 @@
 
 /* Global CSS overrides */
 
+/* Ensure all images scale to container width */
+img { max-width: 100%; height: auto; object-fit: contain; display: block; }
+
+
 @layer base {
   body {
     @apply bg-[#0d0c1d] text-slate-100 antialiased selection:bg-purple-600/35 selection:text-white;

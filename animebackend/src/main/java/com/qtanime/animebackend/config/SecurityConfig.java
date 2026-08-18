@@ -47,8 +47,7 @@ public class SecurityConfig {
                 // CORS
                 // ==========================================
 
-                .cors(cors -> {
-                })
+                .cors(cors -> cors.configure(http))
 
                 // ==========================================
                 // SESSION
